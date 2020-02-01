@@ -1,0 +1,4 @@
+node_modules/
+nginx/
+docker-compose.yml
+make_beta

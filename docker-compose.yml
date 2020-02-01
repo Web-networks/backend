@@ -1,0 +1,12 @@
+version: '3'
+services:
+    back:
+        build: .
+        container_name: backend
+    front:
+        build: ./front
+        container_name: frontend
+    nginx:
+        build: ./nginx
+        ports: 
+            - "80:80"
