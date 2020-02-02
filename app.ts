@@ -8,9 +8,8 @@ logger.level = 'debug';
 
 const app = express();
 app.use(morgan('dev'));
-app.listen(8080, () => {
-    // @ts-ignore
-    logger.info(`Server listening on http://localhost:${config.port}`);
+app.listen(config.get('port'), () => {
+    logger.info(`Server listening on http://localhost:${config.get('port')}`);
 });
 
 app.get('/', (req, res) => {
