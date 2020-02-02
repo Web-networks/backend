@@ -1,11 +1,13 @@
 version: '3'
 services:
     back:
-        build: .
+        image: networksidea/backend:latest
         container_name: backend
     front:
-        build: ./front
+        image: networksidea/frontend:latest 
         container_name: frontend
+        environment: 
+            - FRONTEND_PORT=80
     nginx:
         build: ./nginx
         ports: 
