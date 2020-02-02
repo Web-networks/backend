@@ -38,13 +38,13 @@ yarn start-dev
 Чтобы запустить приложение в _docker контейнере_ нужно сделать следующие:
 ```
 docker build . -t <name of image>
-docker run -p 8080:8080 <name of image>
+docker run -p 5050:5050 <name of image>
 ```
 Можно запустить так же образ который находится в удаленном репозитории (см ниже). Пример запуска последней стабильной версии:
 ```
-docker run -p 5050:8080 networksidea/backend:latest
+docker run -p 8000:5050 networksidea/backend:latest
 ```
-**Важно указать правильную проброску портов!**: `-p <port on your host>:8080`, важно что в контейнере сервер слушает порт `8080`!
+**Важно указать правильную проброску портов!**: `-p <port on your host>:5050`, важно что в контейнере сервер слушает порт `5050`!
 Контейнер запускает сервер в режиме _production_.
 
 Также к git-репозиторию привязан docker hub oraganisation: https://hub.docker.com/orgs/networksidea.
