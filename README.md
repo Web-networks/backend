@@ -6,6 +6,7 @@
 3. [Контейнеризация](#docker) 
 4. [Проверки pre-commit](#commit-checks)
 5. [CI](#CI)
+6. [Архитектура](#architecture)
 
 <a name="settings-env"></a>
 
@@ -84,3 +85,68 @@ docker pull networksidea/backend:<tagname>
 ## CI
 На каждый push в репозиторий запускаются некоторые тесты
 1. Eslint проверки
+
+<a name="architecture"></a>
+
+## Архитектура
+Взял за основу эту статью: https://dev.to/santypk4/bulletproof-node-js-project-architecture-4epf
+Выделю основные моменты из нее.
+Структура проекта: 
+```
+- app.js    # входная точка проекта
+- /api      # папка с контроллерами 
+- /config   # папка с конфигами и определением переменных окружения (секретами)
+- /loaders  # подключение всех необходмых модулей и middlewares на этапе старта приложения
+- /models   # databse models
+- /services # описание классов со всей бизнесс-логикой 
+```
+В каждой из директорий может также распологаться папка с тестами: `tests`. Точно будем тестировать всю бизес логику. Поэтому после написания очередной бизнес сущности необходимо написать тесты на нее.
+
+В архитектуре будет присутствовать 3 слоя: 
+
+1. Слой контроллеров `Controllers` - верхний слой. Принимает заброс и вызывает соответствующую обработку бизнесс логики из `/services`. Это верхний слой приложения, он принимает непосредственно запросы. В этом слое не должно быть ни в коем случае описания любой бизнесс логики. Этот слой просто принимает запрос и решает какая функция/класс будет обрабатываеть его из слоя 2. Пример:
+```
+  route.post('/', 
+    validators.userSignup, // this middleware take care of validation
+    async (req, res, next) => {
+      // The actual responsability of the route layer.
+      const userDTO = req.body;
+
+      // Call to service layer.
+      // Abstraction on how to access the data layer and the business logic.
+      const { user, company } = await UserService.Signup(userDTO);
+
+      // Return a response to client.
+      return res.json({ user, company });
+    });
+```
+
+2. Слой с описанием бизнес логики приложения: `Services` - средний слой. Тут описание каких-то классов (бизнес сущностей), которые непосредественно занимаются уже бизнес логикой приложения. Пример класс `User` (очень упрещенный без тайпингов):
+
+```
+  import UserModel from '../models/user';
+  import CompanyModel from '../models/company';
+
+  export default class UserService {
+
+    async Signup(user) {
+      const userRecord = await UserModel.create(user);
+      const companyRecord = await CompanyModel.create(userRecord); // needs userRecord to have the database id 
+      const salaryRecord = await SalaryModel.create(userRecord, companyRecord); // depends on user and company to be created
+
+      ...whatever
+
+      await EmailService.startSignupSequence(userRecord)
+
+      ...do more stuff
+
+      return { user: userRecord, company: companyRecord };
+    }
+  }
+```
+
+3. Слой с описанием работы с базой данной: `Data Acess Layer`. Это самый низкий слой, он занимается взаимодействием с базой данной. База данных будет `MongoDB`: https://www.mongodb.com/. Фреймворк для взаимодействия будет использоваться [mongoose](https://mongoosejs.com/).  
+
+Важные замечения: если класс из service слоя использует какие-то модели из слоя data acess layer. То нужно вводить dependency injection (для дальнейшего тестировния). Пользуемся этой библиотекой для этого [typeDI](https://www.npmjs.com/package/typedi). 
+
+За эталон берем архитектуру из этого репозитория: https://github.com/santiq/bulletproof-nodejs
