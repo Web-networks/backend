@@ -3,7 +3,7 @@ name: CI
 on: push
 
 jobs:
-    prepare:
+    linter:
         name: Lint checking
         runs-on: ubuntu-latest
         strategy:
@@ -16,8 +16,8 @@ jobs:
 
         - name: yarn lint
           run: yarn lint
-    
-    prepare:
+          
+    server-tests:
         name: Server tests
         runs-on: ubuntu-latest
         strategy:
