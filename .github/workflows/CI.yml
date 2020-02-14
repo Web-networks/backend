@@ -18,7 +18,7 @@ jobs:
           run: yarn lint
 
     building-test:
-        name: Build TS testing
+        name: TS checking
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -28,8 +28,8 @@ jobs:
         - name: yarn install
           run: yarn
 
-        - name: yarn build
-          run: yarn build
+        - name: yarn tsc --noEmit
+          run: yarn tsc --noEmit
           
     server-tests:
         name: Server tests
