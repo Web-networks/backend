@@ -16,7 +16,8 @@
     },
     "parserOptions": {
         "ecmaVersion": 2018,
-        "sourceType": "module"
+        "sourceType": "module",
+        "project": "./tsconfig.json"
     },
     "plugins": [
         "@typescript-eslint"
@@ -55,6 +56,7 @@
               "tsx": "never"
             }
          ],
+         "import/prefer-default-export": "off",
          "consistent-return": "off"
     }
 }
