@@ -27,7 +27,7 @@ describe('passport API', function() {
       .send({password: '123'})
       .end(function(err, res) {
         expect(res).to.have.status(400);
-        expect(res.body).to.have.property('message', '"email" is required');
+        expect(res.body).to.have.property('message', 'email is required');
         done();
       });
   })
@@ -35,7 +35,7 @@ describe('passport API', function() {
   it('Successful sign up user', function(done) {
     chai.request(backendHost)
       .post('/passport/signup')
-      .send({email: 'sikalov@mail.ru', password: '123', name: "Nikita"})
+      .send({email: 'sikalov@mail.ru', password: '12345', name: "Nikita"})
       .end(function(err, res) {
         expect(res).to.have.status(201);
         expect(res.body).to.have.property('email', 'sikalov@mail.ru');
@@ -45,10 +45,32 @@ describe('passport API', function() {
       });
   });
 
+  it('Sign up with incorrect email', function(done) {
+    chai.request(backendHost)
+      .post('/passport/signup')
+      .send({email: 'sikalov', password: '12345', name: "Nikita"})
+      .end(function(err, res) {
+        expect(res).to.have.status(400);
+        expect(res.body).to.have.property('message', 'Invalid format of email');
+        done();
+      });
+  });
+
+  it('Sign up with incorrect password', function(done) {
+    chai.request(backendHost)
+      .post('/passport/signup')
+      .send({email: 'sikalov@mail.ru', password: '123', name: "Nikita"})
+      .end(function(err, res) {
+        expect(res).to.have.status(400);
+        expect(res.body).to.have.property('message');
+        done();
+      });
+  });
+
   it('Sign In after sign up', function (done) {
     chai.request(backendHost)
     .post('/passport/signin')
-    .send({email: 'sikalov@mail.ru', password: '123'})
+    .send({email: 'sikalov@mail.ru', password: '12345'})
     .end(function(err, res) {
       expect(res).to.have.status(202);
       expect(res.body).to.have.property('email', 'sikalov@mail.ru');
