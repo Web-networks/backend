@@ -17,6 +17,7 @@
       "pre-commit": "yarn lint"
     }
   },
+  "_moduleDirectories": ["build", "src"],
   "dependencies": {
     "bcrypt": "^3.0.8",
     "body-parser": "^1.19.0",
@@ -29,7 +30,8 @@
     "express-session": "^1.17.0",
     "js-yaml": "^3.13.1",
     "lodash": "^4.17.15",
-    "log4js": "^6.1.1",
+    "log4js": "^6.1.2",
+    "module-alias": "^2.2.2",
     "mongoose": "^5.8.11",
     "morgan": "^1.9.1",
     "shelljs": "^0.8.3",
@@ -44,6 +46,7 @@
     "@types/hapi__joi": "^16.0.9",
     "@types/lodash": "^4.14.149",
     "@types/log4js": "^2.3.5",
+    "@types/module-alias": "^2.0.0",
     "@types/mongoose": "^5.7.0",
     "@types/morgan": "^1.7.37",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
