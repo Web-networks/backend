@@ -1,17 +1,12 @@
 const sh = require('shelljs');
 const log4js = require('log4js');
 
+const addShutdownFn = require('./lib/addShutdownFunc');
+
 const logger = log4js.getLogger();
 logger.level = 'debug';
 
 /* eslint-disable no-console  */
-
-// Function to add shutdown callbacks
-function addShutdownFn(shutdown, proc = process) {
-    proc.on('exit', shutdown);
-    proc.on('SIGINT', shutdown);
-    proc.on('SIGTERM', shutdown);
-}
 
 function configureEnv() {
     return { ...process.env };
