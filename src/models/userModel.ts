@@ -2,22 +2,23 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
 interface IUser {
-    name: string;
+    username: string;
     email: string;
     password: string;
     verifyPassword: (candidate: string) => Promise<boolean>;
 }
 
 const UserShema = new mongoose.Schema({
-    name: {
+    username: {
         type: String,
         required: [true, 'Enter the name'],
+        unique: [true, 'This username already exists'],
     },
 
     email: {
         type: String,
         lowercase: true,
-        unique: true,
+        unique: [true, 'User with this email already exists'],
     },
 
     password: {

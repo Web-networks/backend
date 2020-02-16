@@ -2,7 +2,7 @@ import { pick } from 'lodash';
 import userModel from '../models/userModel';
 
 interface IUser {
-    name: string;
+    username: string;
     email: string;
     password: string;
     id: string;
@@ -15,7 +15,7 @@ export type IUserSignIn = Omit<IUser, 'id' | 'name'>;
 class UserService {
     public static async signUp(userRecord: IUserSignUp): Promise<IUserInfo> {
         const candidate = await userModel.create(userRecord) as IUserInfo;
-        return pick(candidate, ['name', 'email', 'id']);
+        return pick(candidate, ['username', 'email', 'id']);
     }
 
     public static async signIn(userData: IUserSignIn): Promise<IUserInfo> {
@@ -28,7 +28,7 @@ class UserService {
         if (!isValidPassword) {
             throw new Error('Invalid password');
         }
-        return { name: candidate.name, email: candidate.email, id: candidate.id };
+        return { username: candidate.username, email: candidate.email, id: candidate.id };
     }
 }
 

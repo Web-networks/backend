@@ -32,6 +32,6 @@ export const signUpValidator = celebrate({
                 'string.min': 'password must be not less then 5 symbols',
                 'string.alphanum': 'password must contain only a-z, A-Z, 0-9',
             }),
-        name: Joi.string().required(),
+        username: Joi.string().required(),
     }),
 });
