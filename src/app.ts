@@ -4,29 +4,24 @@ require('module-alias/register');
 /* eslint-disable import/first */
 import express from 'express';
 import mongoose from 'mongoose';
-import log4js from 'log4js';
 import config from 'config';
 
 
-import routesLoader from './loaders/routesLoader';
-import loggerLoader from './loaders/loggerLoader';
-import basicLoader from './loaders/basicLoader';
-import lastLoader from './loaders/lastLoader';
-
-const logger = log4js.getLogger();
-logger.level = 'debug';
+import routesLoader from 'loaders/routesLoader';
+import basicLoader from 'loaders/basicLoader';
+import lastLoader from 'loaders/lastLoader';
 
 // Create express App
 const app: express.Application = express();
 
 // Connect to MongoDB
 mongoose.connect(config.get('dbHost'), { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.set('useCreateIndex', true);
 
 // Connect middlewares to application
 [
     // basic loaders
     basicLoader,
-    loggerLoader,
 
     // application loaders
     routesLoader,
@@ -37,7 +32,7 @@ mongoose.connect(config.get('dbHost'), { useNewUrlParser: true, useUnifiedTopolo
 
 // Connect to port for listening
 app.listen(config.get('port'), () => {
-    logger.info(`Server listening on http://localhost:${config.get('port')}`);
+    console.log('👂 Server listening on', '\x1b[33m', `http://localhost:${config.get('port')}`, '\x1b[0m');
 });
 
 // Only for test
