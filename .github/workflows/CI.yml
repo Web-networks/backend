@@ -1,0 +1,46 @@
+name: CI
+
+on: push
+
+jobs:
+    linter:
+        name: Lint checking
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [10]
+        steps:
+        - uses: actions/checkout@v1
+        - name: yarn install
+          run: yarn
+
+        - name: yarn lint
+          run: yarn lint
+
+    building-test:
+        name: Build TS testing
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [10]
+        steps:
+        - uses: actions/checkout@v1
+        - name: yarn install
+          run: yarn
+
+        - name: yarn build
+          run: yarn build
+          
+    server-tests:
+        name: Server tests
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                node-version: [10]
+        steps:
+        - uses: actions/checkout@v1
+        - name: yarn install
+          run: yarn
+
+        - name: yarn test
+          run: yarn test

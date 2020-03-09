@@ -6,13 +6,14 @@
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:import/typescript",
         "airbnb-base"
     ],
+    "parser": "@typescript-eslint/parser",
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly"
     },
-    "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": 2018,
         "sourceType": "module"
@@ -20,8 +21,40 @@
     "plugins": [
         "@typescript-eslint"
     ],
+    "settings": {
+        "import/parsers": {
+            "@typescript-eslint/parser": [".ts", ".tsx"]
+        },
+        "import/resolver": {
+            // use <root>/tsconfig.json
+            "typescript": {
+                "alwaysTryTypes": true, // always try to resolve types under `<roo/>@types` directory even it doesn't contain any source code, like `@types/unist`
+                "directory": "."
+            }
+          }
+    },
+    "overrides": [
+        {
+          "files": ["**/*.ts", "**/*.tsx"],
+          "rules": {
+            "no-unused-vars": ["off"],
+            "no-undef": ["off"]
+          }
+        }
+    ],
     "rules": {
         "indent": ["error", 4],
-        "max-len": ["error", 128]
+        "max-len": ["error", 128],
+        "import/extensions": [
+            "error",
+            "ignorePackages",
+            {
+              "js": "never",
+              "jsx": "never",
+              "ts": "never",
+              "tsx": "never"
+            }
+         ],
+         "consistent-return": "off"
     }
 }
