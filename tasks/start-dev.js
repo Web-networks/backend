@@ -1,10 +1,6 @@
 const sh = require('shelljs');
-const log4js = require('log4js');
 
 const addShutdownFn = require('./lib/addShutdownFunc');
-
-const logger = log4js.getLogger();
-logger.level = 'debug';
 
 /* eslint-disable no-console  */
 
@@ -20,7 +16,7 @@ function main() {
         sh.echo('Docker is needed to run this command.');
         sh.exit(1);
     }
-    logger.info('Setting up MongoDB container..............');
+    console.log('⏳ Setting up DB');
     // Pull mongo docker cantainer
     sh.exec('docker pull mongo', { silent: true });
     // Run DB locally in docker container
@@ -34,9 +30,9 @@ function main() {
         process.exit(1);
     }
     // Run server application in dev mode
-    logger.info('Setting up server.........................');
+    console.log('🚀 Launching server');
     const serverProcess = sh.exec(
-        'yarn ts-node-dev --clear --respawn --transpileOnly ./src/app.ts',
+        'yarn ts-node -C ttypescript ./src/app.ts',
         { async: true, env: configureEnv() },
     );
 

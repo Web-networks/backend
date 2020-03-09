@@ -11,7 +11,7 @@ function main() {
     // Check that docker is pre-installed
     if (!sh.which('docker')) {
         sh.echo('Docker is needed to run this command.');
-        sh.exit(1);
+        process.exit(1);
     }
     console.log('🍗  Setting up DB...');
     // Pull mongo docker cantainer
