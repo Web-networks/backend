@@ -1,7 +1,12 @@
+// @ts-ignore
+require('module-alias/register');
+
+/* eslint-disable import/first */
 import express from 'express';
 import mongoose from 'mongoose';
 import log4js from 'log4js';
 import config from 'config';
+
 
 import routesLoader from './loaders/routesLoader';
 import loggerLoader from './loaders/loggerLoader';
