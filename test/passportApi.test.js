@@ -11,10 +11,20 @@ function makeContext(res) {
   return `res.body is\n${printObject(res.body)}error message`;
 }
 
-const TEST_PORT = process.env.PORT || 5050;
-const backendHost = `http://localhost:${TEST_PORT}`;
+const backendHost = config.get('appHost');
 
 describe('passport API', function() {
+  it('Successfull signIn', function(done) {
+    chai.request(backendHost)
+      .post('/passport/signin')
+      .send({email: 'user1@mail.ru', password: 'user1'})
+      .end(function(err, res) {
+        expect(res, makeContext(res)).to.have.status(202);
+        expect(res.body).to.have.all.keys(['id', 'username', 'email']);
+        done();
+      });
+});
+
   it('SignIn non-existent user', function(done) {
       chai.request(backendHost)
         .post('/passport/signin')
