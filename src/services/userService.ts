@@ -23,7 +23,6 @@ class UserService {
     public static async findByUsername(partOfUserName: string = '', limit: number = 100): Promise<IMinUserInfo[]> {
         const searchingRegExp = new RegExp(`.*${partOfUserName}.*`);
         const usersDocuments = await userModel.find({ username: searchingRegExp }).limit(limit);
-        console.log('here');
         return usersDocuments.map((user) => pick(user, this.userMinInfoFields));
     }
 
