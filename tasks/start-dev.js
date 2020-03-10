@@ -16,7 +16,7 @@ function main() {
         sh.echo('Docker is needed to run this command.');
         sh.exit(1);
     }
-    console.log('⏳ Setting up DB');
+    console.log('⏳  Setting up DB');
     // Pull mongo docker cantainer
     sh.exec('docker pull mongo', { silent: true });
     // Run DB locally in docker container
@@ -30,7 +30,7 @@ function main() {
         process.exit(1);
     }
     // Run server application in dev mode
-    console.log('🚀 Launching server');
+    console.log('🚀  Launching server');
     const serverProcess = sh.exec(
         'yarn ts-node -C ttypescript ./src/app.ts',
         { async: true, env: configureEnv() },
