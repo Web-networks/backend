@@ -8,7 +8,7 @@
   "scripts": {
     "start-dev": "NODE_ENV=development node tasks/start-dev.js",
     "build": "NODE_ENV=production ttsc -p .",
-    "start": "node ./build/app.js",
+    "start": "ts-node -C ttypescript ./src/app.ts",
     "lint": "yarn eslint . --ext .ts,.js",
     "test": "NODE_ENV=testing node tasks/test-server.js",
     "test-local": "NODE_ENV=development node tasks/load-fixtures && yarn mocha"

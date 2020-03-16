@@ -3,12 +3,13 @@
 require('dotenv').config();
 
 const DB_PORT = 27017;
+const DB_HOST = process.env.DB_HOST || 'localhost';
 const PORT = 5050;
 
 module.exports = {
     port: PORT,
     appHost: `http://localhost:${PORT}`,
     sessionSecret: process.env.SESSION_SECRET,
-    dbHost: `mongodb://localhost:${DB_PORT}`,
+    dbHost: `mongodb://${DB_HOST}:${DB_PORT}`,
     dbPort: DB_PORT,
 };
