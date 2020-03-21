@@ -13,7 +13,7 @@ function main() {
         sh.echo('Docker is needed to run this command.');
         process.exit(1);
     }
-    console.log('🍗  Setting up DB...');
+    process.stdout.write('🍗  Setting up DB...');
     // Pull mongo docker cantainer
     sh.exec('docker pull mongo', { silent: true });
     // Run DB locally in docker container
@@ -23,20 +23,20 @@ function main() {
         stderr: errorDocker,
     } = sh.exec(`docker run -d -p ${dbPort}:27017 mongo`, { silent: true });
     if (dockerDBCode) {
-        console.error(errorDocker);
+        process.stderr.write(errorDocker);
         process.exit(1);
     }
 
     // building app
-    console.log('🍔  Building app...');
+    process.stdout.write('🍔  Building app...');
     sh.exec('yarn build', { silent: true });
 
     // start server listening
-    console.log('🥩  Starting server...');
+    process.stdout.write('🥩  Starting server...');
     const serverProcess = sh.exec('node ./build/app.js', { async: true, env: process.env, silent: true });
     const timerToStop = setTimeout(() => {
         serverProcess.kill();
-        console.error('Server not started');
+        process.stderr.write('Server not started');
         process.exit(1);
     }, maxTimeToWait);
 
@@ -45,7 +45,7 @@ function main() {
         serverProcess.kill();
         const { code: dockerStopCode, stderr: error } = sh.exec(`docker stop ${dbContainerID}`, { silent: true });
         if (dockerStopCode) {
-            console.error(`Error during stopping container: ${dbContainerID}\n${error}`);
+            process.stderr.write(`Error during stopping container: ${dbContainerID}\n${error}`);
         }
     };
     addShutdownFunc(shutdownFunc);
@@ -56,11 +56,11 @@ function main() {
             clearTimeout(timerToStop);
 
             // make fictures for testing
-            console.log('🍺  Making fixtures...');
+            process.stdout.write('🍺  Making fixtures...');
             sh.exec('node ./tasks/load-fixtures.js', { silent: true, env: process.env });
 
             // start to test
-            console.log('🍻  Start testing...');
+            process.stdout.write('🍻  Start testing...');
             exec('yarn mocha').then(({ code }) => {
                 process.exit(code);
             });

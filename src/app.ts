@@ -32,8 +32,10 @@ mongoose.set('useCreateIndex', true);
 
 // Connect to port for listening
 app.listen(config.get('port'), () => {
-    console.log('👂 Server listening on', '\x1b[33m', `http://localhost:${config.get('port')}`, '\x1b[0m');
+    process.stdout.write(`👂 Server listening on \x1b[33m http://localhost:${config.get('port')} \x1b[0m`);
 });
+
+console.log(process.env.DB_HOST);
 
 // Only for test
 app.get('/', (req, res) => {

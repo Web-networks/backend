@@ -1,4 +1,10 @@
-#!bin/bash
+#!/bin/sh
 
-git clone git@github.com:Web-networks/frontend.git frontend/
-docker-compose up -d
+if [ -e frontend ]; then
+    git -C ./frontend pull
+else 
+    git clone git@github.com:Web-networks/frontend.git frontend/
+fi
+export NODE_ENV=development
+docker-compose -f docker-compose-dev.yml up --build --force-recreate -d
+node ./tasks/load-fixtures.js
