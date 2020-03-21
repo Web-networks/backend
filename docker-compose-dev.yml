@@ -23,6 +23,6 @@ services:
           - back
           - front
         ports: 
-            - "80:80"
+            - "7779:80"
 
 
