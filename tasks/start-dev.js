@@ -10,7 +10,7 @@ function configureEnv() {
 
 const DB_PORT = process.env.DB_PORT || '27017';
 
-function main() {
+async function main() {
     // Check that docker is pre-installed
     if (!sh.which('docker')) {
         sh.echo('Docker is needed to run this command.');
@@ -27,6 +27,19 @@ function main() {
     } = sh.exec(`docker run -d -p ${DB_PORT}:27017 mongo`, { silent: true });
     if (code) {
         console.error(errorDocker);
+        process.exit(1);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Load fixtures
+    console.log('🍺  Making fixtures...');
+    const {
+        code: fixturesCode,
+        stderr: fixturesError,
+    } = sh.exec('node ./tasks/load-fixtures.js', { env: process.env, silent: true });
+    if (fixturesCode) {
+        console.error(fixturesError);
         process.exit(1);
     }
     // Run server application in dev mode

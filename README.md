@@ -1,5 +1,7 @@
 # Backend-part of application 
 
+## ДОКИ: https://web-networks.github.io/backend/index.html
+
 ## Содержание
 1. [Настройка окружения и установка необходмых пакетов для разработки (Linux, MacOS)](#settings-env)
 2. [Разработка](#dev-rules)

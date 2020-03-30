@@ -26,6 +26,14 @@ passportRoute
             } catch (error) {
                 return res.status(400).json({ message: error.message });
             }
+        })
+    .get('/current',
+        async (req: express.Request, res: express.Response) => {
+            if (!req.session || !req.session.user) {
+                return res.status(401).json({ message: 'unauthorized' });
+            }
+            const { user } = req.session;
+            return res.status(200).json(user);
         });
 
 export default passportRoute;
