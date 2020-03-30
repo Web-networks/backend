@@ -59,3 +59,25 @@
   *
   *
   */
+
+  /**
+  *
+  * @api {get} /passport/current Info about current session user
+  * @apiName Current
+  * @apiGroup Passport
+  *
+  *
+  * @apiSuccess (200) {String} id User's id
+  * @apiSuccess (200) {String} email User's email
+  * @apiSuccess (200) {String} username User's username
+  *
+  *
+  * @apiSuccessExample {json} Success-Response:
+  * {
+  *     "email": "test@mail.ru",
+  *     "id": "laskdfj234k5j12ljasdf",
+  *     "username": "user",
+  * }
+  *
+  *
+  */

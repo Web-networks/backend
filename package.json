@@ -11,7 +11,8 @@
     "start": "ts-node -C ttypescript ./src/app.ts",
     "lint": "yarn eslint . --ext .ts,.js",
     "test": "NODE_ENV=testing node tasks/test-server.js",
-    "test-local": "NODE_ENV=development node tasks/load-fixtures && yarn mocha"
+    "test-local": "NODE_ENV=development node tasks/load-fixtures && yarn mocha",
+    "gen-doc": "apidoc -i src/api -o docs/"
   },
   "husky": {
     "hooks": {

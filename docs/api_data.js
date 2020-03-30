@@ -1,5 +1,49 @@
 define({ "api": [
   {
+    "type": "get",
+    "url": "/passport/current",
+    "title": "Info about current session user",
+    "name": "Current",
+    "group": "Passport",
+    "success": {
+      "fields": {
+        "200": [
+          {
+            "group": "200",
+            "type": "String",
+            "optional": false,
+            "field": "id",
+            "description": "<p>User's id</p>"
+          },
+          {
+            "group": "200",
+            "type": "String",
+            "optional": false,
+            "field": "email",
+            "description": "<p>User's email</p>"
+          },
+          {
+            "group": "200",
+            "type": "String",
+            "optional": false,
+            "field": "username",
+            "description": "<p>User's username</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\n    \"email\": \"test@mail.ru\",\n    \"id\": \"laskdfj234k5j12ljasdf\",\n    \"username\": \"user\",\n}",
+          "type": "json"
+        }
+      ]
+    },
+    "version": "0.0.0",
+    "filename": "src/api/passportApi/passportAp.docs.ts",
+    "groupTitle": "Passport"
+  },
+  {
     "type": "post",
     "url": "/passport/signin",
     "title": "SingIn user",
