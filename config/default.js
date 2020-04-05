@@ -12,4 +12,9 @@ module.exports = {
     sessionSecret: process.env.SESSION_SECRET,
     dbHost: `mongodb://${DB_HOST}:${DB_PORT}`,
     dbPort: DB_PORT,
+    aws: {
+        region: 'ru-central1',
+        endpoint: 'https://storage.yandexcloud.net',
+        maxFileSize: 1048576
+    }
 };

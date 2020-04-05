@@ -29,6 +29,7 @@
         "sonarjs"
     ],
     "rules": {
+		"no-unused-vars": "off",
 		"no-duplicate-imports": ["error", { "includeExports": true }], // disallow duplicate module imports
 		"no-template-curly-in-string": "error", // disallow template literal placeholder syntax in regular strings
 		"block-scoped-var": "error", // enforce the use of variables within the scope they are defined

@@ -6,18 +6,19 @@ interface IUser {
     username: string;
     email: string;
     password: string;
+    avatar: string | null;
     id: string;
 }
 
 export type IUserSignUp = Omit<IUser, 'id'>;
 export type IUserInfo = Omit<IUser, 'password'>;
-export type IMinUserInfo = Pick<IUser, 'id' | 'username'>;
+export type IMinUserInfo = Pick<IUser, 'id' | 'username' | 'avatar'>;
 export type IUserSignIn = Omit<IUser, 'id' | 'username'>;
 
 class UserService {
-    public static userInfoFields: Array<keyof IUserInfo> = ['email', 'id', 'username'];
+    public static userInfoFields: Array<keyof IUserInfo> = ['email', 'id', 'username', 'avatar'];
 
-    public static userMinInfoFields: Array<keyof IMinUserInfo> = ['id', 'username'];
+    public static userMinInfoFields: Array<keyof IMinUserInfo> = ['id', 'username', 'avatar'];
 
     public static async findByUsername(partOfUserName: string = '', limit: number = 100): Promise<IMinUserInfo[]> {
         const searchingRegExp = new RegExp(`.*${partOfUserName}.*`);
@@ -49,6 +50,14 @@ class UserService {
             throw new Error('Invalid password');
         }
         return pick(candidate, this.userInfoFields);
+    }
+
+    public static async updateUserAvatar(username: string, avatar: string): Promise<IUserInfo> {
+        const newUser = await userModel.findOneAndUpdate(username, { avatar }, { new: true });
+        if (!newUser) {
+            throw new Error(`No such user ${username}`);
+        }
+        return pick(newUser, this.userInfoFields);
     }
 }
 

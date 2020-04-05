@@ -6,6 +6,7 @@ interface IUser {
     email: string;
     password: string;
     id: string;
+    avatar: string | null;
     verifyPassword: (candidate: string) => Promise<boolean>;
 }
 
@@ -25,6 +26,11 @@ const UserShema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Password is required'],
+    },
+
+    avatar: {
+        type: String,
+        default: null,
     },
 });
 

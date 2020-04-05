@@ -6,6 +6,6 @@ declare namespace Express {
     }
 
     interface Session {
-        user: IUser | null;
+        user?: IUser;
     }
 }
