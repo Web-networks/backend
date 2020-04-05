@@ -8,4 +8,7 @@ module.exports = {
     appHost: `http://localhost:${PORT}`,
     dbHost: `mongodb://localhost:${DB_PORT}`,
     dbPort: DB_PORT,
+    aws: {
+        bucket: 'networks-idea-dev',
+    }
 };
