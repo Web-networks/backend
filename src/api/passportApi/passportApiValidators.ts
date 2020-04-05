@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { celebrate, Joi, Segments } from 'celebrate';
 
 export const signInValidator = celebrate({
@@ -5,14 +6,16 @@ export const signInValidator = celebrate({
         email: Joi
             .string()
             .required()
+            .email()
             .messages({
-                'any.required': 'email is required',
+                'any.required': 'Email is required',
+                'string.email': 'Invalid email',
             }),
         password: Joi
             .string()
             .required()
             .messages({
-                'any.required': 'password is required',
+                'any.required': 'Password is required',
             }),
     }),
 });
@@ -24,8 +27,8 @@ export const signUpValidator = celebrate({
             .required()
             .email()
             .messages({
-                'any.required': 'email is required',
-                'string.email': 'email has wrong format',
+                'any.required': 'Email is required',
+                'string.email': 'Invalid email',
             }),
         password: Joi
             .string()
@@ -34,10 +37,10 @@ export const signUpValidator = celebrate({
             .min(5)
             .required()
             .messages({
-                'any.required': 'password is required',
-                'string.max': 'password must be not more then 10 symbols',
-                'string.min': 'password must be not less then 5 symbols',
-                'string.alphanum': 'password must contain only a-z, A-Z, 0-9',
+                'any.required': 'Password is required',
+                'string.max': 'Password must be not more then 10 symbols',
+                'string.min': 'Password must be not less then 5 symbols',
+                'string.alphanum': 'Password must contain only a-z, A-Z, 0-9',
             }),
         username: Joi
             .string()
@@ -45,9 +48,9 @@ export const signUpValidator = celebrate({
             .alphanum()
             .min(3)
             .messages({
-                'any.required': 'username is required',
-                'string.min': 'username must be not less then 3 symbols',
-                'string.alphanum': 'username must contain only a-z, A-Z, 0-9',
+                'any.required': 'Username is required',
+                'string.min': 'Username must be not less then 3 symbols',
+                'string.alphanum': 'Username must contain only a-z, A-Z, 0-9',
             }),
     }),
 });

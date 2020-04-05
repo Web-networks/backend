@@ -1,5 +1,4 @@
 import { pick } from 'lodash';
-import { keys } from 'ts-transformer-keys';
 
 import userModel from 'models/userModel';
 
@@ -7,26 +6,35 @@ interface IUser {
     username: string;
     email: string;
     password: string;
+    avatar: string | null;
     id: string;
 }
 
-export type IUserSignUp = IUser;
+export type IUserSignUp = Omit<IUser, 'id'>;
 export type IUserInfo = Omit<IUser, 'password'>;
-export type IMinUserInfo = Pick<IUser, 'id' | 'username'>
+export type IMinUserInfo = Pick<IUser, 'id' | 'username' | 'avatar'>;
 export type IUserSignIn = Omit<IUser, 'id' | 'username'>;
 
 class UserService {
-    public static userInfoFields = keys<IUserInfo>();
+    public static userInfoFields: Array<keyof IUserInfo> = ['email', 'id', 'username', 'avatar'];
 
-    public static userMinInfoFields = keys<IMinUserInfo>();
+    public static userMinInfoFields: Array<keyof IMinUserInfo> = ['id', 'username', 'avatar'];
 
     public static async findByUsername(partOfUserName: string = '', limit: number = 100): Promise<IMinUserInfo[]> {
         const searchingRegExp = new RegExp(`.*${partOfUserName}.*`);
         const usersDocuments = await userModel.find({ username: searchingRegExp }).limit(limit);
-        return usersDocuments.map((user) => pick(user, this.userMinInfoFields));
+        return usersDocuments.map(user => pick(user, this.userMinInfoFields));
     }
 
     public static async signUp(userRecord: IUserSignUp): Promise<IUserInfo> {
+        const withSameUsername = await userModel.findOne({ username: userRecord.username });
+        if (withSameUsername) {
+            throw new Error('User with this username already exists');
+        }
+        const withSameEmail = await userModel.findOne({ email: userRecord.email });
+        if (withSameEmail) {
+            throw new Error('User with this email already exists');
+        }
         const candidate = await userModel.create(userRecord) as IUserInfo;
         return pick(candidate, this.userInfoFields);
     }
@@ -42,6 +50,14 @@ class UserService {
             throw new Error('Invalid password');
         }
         return pick(candidate, this.userInfoFields);
+    }
+
+    public static async updateUserAvatar(username: string, avatar: string): Promise<IUserInfo> {
+        const newUser = await userModel.findOneAndUpdate(username, { avatar }, { new: true });
+        if (!newUser) {
+            throw new Error(`No such user ${username}`);
+        }
+        return pick(newUser, this.userInfoFields);
     }
 }
 

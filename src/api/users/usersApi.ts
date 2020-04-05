@@ -7,8 +7,8 @@ import { findQueryValidator } from './usersApiValidators';
 const usersRoute = Router();
 
 interface IFindQuery {
-    username?: string,
-    limit?: number,
+    username?: string;
+    limit?: number;
 }
 
 usersRoute

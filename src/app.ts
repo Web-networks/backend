@@ -1,7 +1,6 @@
 // @ts-ignore
 require('module-alias/register');
 
-/* eslint-disable import/first */
 import express from 'express';
 import mongoose from 'mongoose';
 import config from 'config';
@@ -28,7 +27,7 @@ mongoose.set('useCreateIndex', true);
 
     // very last loader
     lastLoader,
-].forEach((loader) => loader(app));
+].forEach(loader => loader(app));
 
 // Connect to port for listening
 app.listen(config.get('port'), () => {
