@@ -6,12 +6,10 @@
   "author": "Nikita Sikalov <sikalov@yandex-team.ru>",
   "license": "MIT",
   "scripts": {
-    "start-dev": "NODE_ENV=development node tasks/start-dev.js",
-    "build": "NODE_ENV=production ttsc -p .",
-    "start": "ts-node -C ttypescript ./src/app.ts",
+    "start-dev": "NODE_ENV=development ts-node tasks/start-dev.ts",
+    "start": "ts-node ./src/app.ts",
     "lint": "yarn eslint . --ext .ts,.js",
-    "test": "NODE_ENV=testing node tasks/test-server.js",
-    "test-local": "NODE_ENV=development node tasks/load-fixtures && yarn mocha",
+    "test": "NODE_ENV=testing ts-node tasks/test-server.ts",
     "gen-doc": "apidoc -i src/api -o docs/"
   },
   "husky": {
@@ -43,7 +41,6 @@
     "query-string": "^6.11.0",
     "shelljs": "^0.8.3",
     "ts-node": "^8.6.2",
-    "ts-transformer-keys": "^0.4.1",
     "typedi": "^0.8.0",
     "typescript": "^3.7.5"
   },
@@ -55,19 +52,25 @@
     "@types/hapi__joi": "^16.0.9",
     "@types/lodash": "^4.14.149",
     "@types/log4js": "^2.3.5",
+    "@types/mocha": "^7.0.2",
     "@types/module-alias": "^2.0.0",
     "@types/mongoose": "^5.7.0",
     "@types/morgan": "^1.7.37",
+    "@types/shelljs": "^0.8.7",
     "@typescript-eslint/eslint-plugin": "^2.18.0",
     "@typescript-eslint/parser": "^2.18.0",
     "apidoc": "^0.20.0",
     "chai": "^4.2.0",
     "chai-http": "^4.3.0",
+    "chalk": "^4.0.0",
     "eslint": "^6.8.0",
     "eslint-import-resolver-typescript": "^2.0.0",
     "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-optimize-regex": "^1.1.7",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-sonarjs": "^0.5.0",
     "husky": "^4.2.1",
     "mocha": "^7.0.1",
-    "ttypescript": "^1.5.10"
+    "ts-node-dev": "^1.0.0-pre.44"
   }
 }

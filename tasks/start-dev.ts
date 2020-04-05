@@ -1,12 +1,7 @@
-const sh = require('shelljs');
+import sh from 'shelljs';
 
-const addShutdownFn = require('./lib/addShutdownFunc');
-
-/* eslint-disable no-console  */
-
-function configureEnv() {
-    return { ...process.env };
-}
+import { addShutdownFn } from './lib/addShutdownFunc';
+import chalk from 'chalk';
 
 const DB_PORT = process.env.DB_PORT || '27017';
 
@@ -16,7 +11,7 @@ async function main() {
         sh.echo('Docker is needed to run this command.');
         sh.exit(1);
     }
-    console.log('⏳  Setting up DB');
+    process.stdout.write(chalk.yellowBright('⏳  Setting up DB\n'));
     // Pull mongo docker cantainer
     sh.exec('docker pull mongo', { silent: true });
     // Run DB locally in docker container
@@ -26,27 +21,27 @@ async function main() {
         stderr: errorDocker,
     } = sh.exec(`docker run -d -p ${DB_PORT}:27017 mongo`, { silent: true });
     if (code) {
-        console.error(errorDocker);
+        process.stderr.write(errorDocker);
         process.exit(1);
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Load fixtures
-    console.log('🍺  Making fixtures...');
+    process.stdout.write(chalk.yellowBright('🍺  Making fixtures\n'));
     const {
         code: fixturesCode,
         stderr: fixturesError,
-    } = sh.exec('node ./tasks/load-fixtures.js', { env: process.env, silent: true });
+    } = sh.exec('ts-node ./tasks/load-fixtures.ts', { env: process.env, silent: true });
     if (fixturesCode) {
-        console.error(fixturesError);
+        process.stderr.write(fixturesError);
         process.exit(1);
     }
     // Run server application in dev mode
-    console.log('🚀  Launching server');
+    process.stdout.write(chalk.yellowBright('🚀  Launching server\n'));
     const serverProcess = sh.exec(
-        'yarn ts-node -C ttypescript ./src/app.ts',
-        { async: true, env: configureEnv() },
+        'yarn ts-node-dev ./src/app.ts',
+        { async: true },
     );
 
     // On stop application should stop docker db container
@@ -54,7 +49,7 @@ async function main() {
         serverProcess.kill();
         const { code: exitCode, stderr: error } = sh.exec(`docker stop ${dbContainerID}`, { silent: true });
         if (exitCode) {
-            console.error(`Error during stopping container: ${dbContainerID}\n${error}`);
+            process.stderr.write(`Error during stopping container: ${dbContainerID}\n${error}`);
         }
     });
 }

@@ -1,5 +1,6 @@
-const Fixtures = require('node-mongodb-fixtures');
-const config = require('config');
+// @ts-ignore
+import Fixtures from 'node-mongodb-fixtures';
+import config from 'config';
 
 const fixtures = new Fixtures();
 
