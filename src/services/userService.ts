@@ -1,19 +1,14 @@
 import { pick } from 'lodash';
+import { IUser } from 'types';
 
-import userModel from 'models/userModel';
-
-interface IUser {
-    username: string;
-    email: string;
-    password: string;
-    avatar: string | null;
-    id: string;
-}
+import userModel, { UserDocument } from 'models/userModel';
 
 export type IUserSignUp = Omit<IUser, 'id'>;
 export type IUserInfo = Omit<IUser, 'password'>;
 export type IMinUserInfo = Pick<IUser, 'id' | 'username' | 'avatar'>;
-export type IUserSignIn = Omit<IUser, 'id' | 'username'>;
+export type IUserSignIn = Omit<IUser, 'id' | 'username'> & {
+    password: string;
+};
 
 class UserService {
     public static userInfoFields: Array<keyof IUserInfo> = ['email', 'id', 'username', 'avatar'];
@@ -23,7 +18,7 @@ class UserService {
     public static async findByUsername(partOfUserName: string = '', limit: number = 100): Promise<IMinUserInfo[]> {
         const searchingRegExp = new RegExp(`.*${partOfUserName}.*`);
         const usersDocuments = await userModel.find({ username: searchingRegExp }).limit(limit);
-        return usersDocuments.map(user => pick(user, this.userMinInfoFields));
+        return this.getMinUsersInfo(usersDocuments);
     }
 
     public static async signUp(userRecord: IUserSignUp): Promise<IUserInfo> {
@@ -58,6 +53,14 @@ class UserService {
             throw new Error(`No such user ${username}`);
         }
         return pick(newUser, this.userInfoFields);
+    }
+
+    public static getMinUsersInfo<T extends IUser>(users: T[]) {
+        return users.map((user: UserDocument | IUser) => this.getMinUserInfo(user));
+    }
+
+    public static getMinUserInfo<T extends IUser>(user: T) {
+        return pick(user, this.userMinInfoFields);
     }
 }
 

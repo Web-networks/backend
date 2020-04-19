@@ -12,8 +12,11 @@ async function main() {
         sh.exit(1);
     }
     process.stdout.write(chalk.yellowBright('⏳  Setting up DB\n'));
-    // Pull mongo docker cantainer
-    sh.exec('docker pull mongo', { silent: true });
+    const [_, ...mongoImages] = sh.exec('docker images mongo', { silent: true }).split(/\n/).filter(Boolean);
+    if (!mongoImages.length) {
+        // Pull mongo docker cantainer
+        sh.exec('docker pull mongo');
+    }
     // Run DB locally in docker container
     const {
         code,
