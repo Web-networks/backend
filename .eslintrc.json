@@ -58,7 +58,7 @@
 		"prefer-promise-reject-errors": "error", // require using Error objects as Promise rejection reasons
 		"radix": "error", // enforce the consistent use of the radix argument when using parseInt()
 		"no-undefined": "error", // disallow the use of undefined as an identifier
-		"array-bracket-newline": ["error", { "multiline": true }], // enforce linebreaks after opening and before closing array brackets
+		"array-bracket-newline": ["off", { "multiline": true }], // enforce linebreaks after opening and before closing array brackets
 		"comma-dangle": ["error", "always-multiline"], // require or disallow trailing commas
 		"comma-style": "error", // enforce consistent comma style
 		"eol-last": "error", // require or disallow newline at the end of files

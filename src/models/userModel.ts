@@ -1,13 +1,10 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import { IUser } from 'types';
 
-interface IUser {
-    username: string;
-    email: string;
-    password: string;
-    id: string;
-    avatar: string | null;
+interface IUserModel extends IUser {
     verifyPassword: (candidate: string) => Promise<boolean>;
+    password: string;
 }
 
 const UserShema = new mongoose.Schema({
@@ -32,9 +29,25 @@ const UserShema = new mongoose.Schema({
         type: String,
         default: null,
     },
+
+    projects: [
+        {
+            type: mongoose.Types.ObjectId,
+            ref: 'Project',
+            default: [],
+        },
+    ],
+
+    availableProjects: [
+        {
+            type: mongoose.Types.ObjectId,
+            ref: 'Project',
+            default: [],
+        },
+    ],
 });
 
-type UserDocument = IUser & mongoose.Document;
+export type UserDocument = IUserModel & mongoose.Document;
 
 UserShema.pre('save', async function save(next) {
     const user = this as UserDocument;
@@ -51,5 +64,5 @@ UserShema.methods.verifyPassword = function (candidate: string): Promise<boolean
     return bcrypt.compare(candidate, this.password);
 };
 
-const userModel = mongoose.model<UserDocument>('User', UserShema);
+export const userModel = mongoose.model<UserDocument>('User', UserShema);
 export default userModel;
