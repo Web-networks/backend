@@ -12,7 +12,7 @@ type MinProjectsInfo = {
 
 export class ProjectsService {
     public static projectsInfoFields: Array<keyof IProject> = [
-        'id', 'description', 'isPublic', 'name', 'owner', 'sharedWith',
+        'id', 'description', 'isPublic', 'name', 'owner', 'sharedWith', 'displayName',
     ];
 
     public static async saveProject(project: MinProjectsInfo) {

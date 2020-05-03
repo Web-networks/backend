@@ -1,6 +1,7 @@
 export interface IProject {
     owner: IUser;
     name: string;
+    displayName: string;
     description: string;
     id: string;
     isPublic: boolean;

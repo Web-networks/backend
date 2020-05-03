@@ -48,7 +48,7 @@ class UserService {
     }
 
     public static async updateUserAvatar(username: string, avatar: string): Promise<IUserInfo> {
-        const newUser = await userModel.findOneAndUpdate(username, { avatar }, { new: true });
+        const newUser = await userModel.findOneAndUpdate({ username }, { avatar }, { new: true });
         if (!newUser) {
             throw new Error(`No such user ${username}`);
         }

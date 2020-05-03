@@ -11,6 +11,13 @@ const ProjectSchema = new mongoose.Schema({
     name: {
         type: String,
         maxlength: [30, 'Max length of name is 30 symbols'],
+        validate: [/^[\d_a-z]+$/g, 'Use only letters and numbers'],
+        required: true,
+    },
+
+    displayName: {
+        type: String,
+        maxlength: [30, 'Max length of displayName is 30 symbols'],
         required: true,
     },
 
