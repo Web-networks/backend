@@ -35,7 +35,7 @@ async function main() {
     const {
         code: fixturesCode,
         stderr: fixturesError,
-    } = sh.exec('ts-node ./tasks/load-fixtures.ts', { env: process.env, silent: true });
+    } = sh.exec('yarn ts-node ./tasks/load-fixtures.ts', { env: process.env, silent: true });
     if (fixturesCode) {
         process.stderr.write(fixturesError);
         process.exit(1);
