@@ -10,3 +10,10 @@ export const addPostValidator = celebrate({
         isPublic: Joi.boolean(),
     }),
 });
+
+export const infoGetValidator = celebrate({
+    [Segments.QUERY]: Joi.object().keys({
+        user: Joi.string().required(),
+        project: Joi.string().required(),
+    }),
+});
