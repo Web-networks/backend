@@ -9,9 +9,17 @@ export type IMinUserInfo = Pick<IUser, 'id' | 'username' | 'avatar'>;
 export type IUserSignIn = Omit<IUser, 'id' | 'username'> & {
     password: string;
 };
+export type IUserEditInfo = Pick<IUser, 'firstName' | 'lastName'>;
 
 class UserService {
-    public static userInfoFields: Array<keyof IUserInfo> = ['email', 'id', 'username', 'avatar'];
+    public static userInfoFields: Array<keyof IUserInfo> = [
+        'email',
+        'id',
+        'username',
+        'avatar',
+        'firstName',
+        'lastName',
+    ];
 
     public static userMinInfoFields: Array<keyof IMinUserInfo> = ['id', 'username', 'avatar'];
 
@@ -45,6 +53,15 @@ class UserService {
             throw new Error('Invalid password');
         }
         return pick(candidate, this.userInfoFields);
+    }
+
+    public static async editInfo(username: string, userRecord: IUserEditInfo): Promise<IUserInfo> {
+        const { firstName, lastName } = userRecord;
+        const newUser = await userModel.findOneAndUpdate({ username }, { firstName, lastName }, { new: true });
+        if (!newUser) {
+            throw new Error(`No such user ${username}`);
+        }
+        return pick(newUser, this.userInfoFields);
     }
 
     public static async updateUserAvatar(username: string, avatar: string): Promise<IUserInfo> {
