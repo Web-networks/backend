@@ -26,7 +26,7 @@ describe('PASSPORT API', () => {
                 .send({ email: 'user1@mail.ru', password: 'user1' })
                 .end((err, res) => {
                     expect(res, makeContext(res)).to.have.status(202);
-                    expect(res.body).to.have.all.keys(['id', 'username', 'email', 'avatar']);
+                    expect(res.body).to.have.all.keys(['id', 'username', 'email', 'avatar', 'firstName', 'lastName']);
                     done();
                 });
         });
@@ -74,7 +74,7 @@ describe('PASSPORT API', () => {
                     expect(res, makeContext(res)).to.have.status(201);
                     expect(res.body).to.have.property('email', 'sikalov@mail.ru');
                     expect(res.body).to.have.property('username', 'sikalov');
-                    expect(res.body).to.have.all.keys(['id', 'email', 'username', 'avatar']);
+                    expect(res.body).to.have.all.keys(['id', 'email', 'username', 'avatar', 'firstName', 'lastName']);
                     done();
                 });
         });

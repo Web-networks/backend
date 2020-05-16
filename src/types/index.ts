@@ -15,6 +15,8 @@ export interface IUser {
     email: string;
     id: string;
     avatar: string | null;
+    firstName: string | null;
+    lastName: string | null;
     projects: IProject[];
     availableProjects: IProject[];
 }

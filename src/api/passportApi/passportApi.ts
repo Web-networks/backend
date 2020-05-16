@@ -3,7 +3,7 @@ import multer from 'multer';
 import config from 'config';
 
 import { needAuthorization } from 'middlewares/authorization';
-import userService, { IUserSignIn, IUserSignUp } from 'services/userService';
+import userService, { IUserEditInfo, IUserSignIn, IUserSignUp } from 'services/userService';
 import { Aws } from 'services/aws';
 import { signInValidator, signUpValidator } from './passportApiValidators';
 
@@ -16,6 +16,7 @@ export default passportRoute
     .post('/signin', signInValidator, signIn)
     .post('/signup', signUpValidator, signUp)
     .post('/set_avatar', needAuthorization, upload.single('avatar'), setAvatar)
+    .post('/editinfo', needAuthorization, editInfo)
     .get('/current', needAuthorization, current)
     .get('/signout', needAuthorization, signOut);
 
@@ -60,6 +61,19 @@ async function setAvatar(req: express.Request, res: express.Response, next: Next
     const newUser = await userService.updateUserAvatar(username, avatarUrl);
     req.session!.user = newUser;
     return res.status(200).json({ ...newUser });
+}
+
+async function editInfo(req: express.Request, res: express.Response) {
+    try {
+        // @ts-ignore
+        const { username } = req.session.user;
+        const userRecord = req.body as IUserEditInfo;
+        const userInfo = await userService.editInfo(username, userRecord);
+        req.session!.user = userInfo;
+        return res.status(202).json(userInfo);
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
 }
 
 function current(req: express.Request, res: express.Response) {

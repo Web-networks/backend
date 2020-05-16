@@ -30,6 +30,16 @@ const UserShema = new mongoose.Schema({
         default: null,
     },
 
+    firstName: {
+        type: String,
+        default: null,
+    },
+
+    lastName: {
+        type: String,
+        default: null,
+    },
+
     projects: [
         {
             type: mongoose.Types.ObjectId,
