@@ -126,7 +126,8 @@ describe('PASSPORT API', () => {
         it('it should sign up with first and last names', done => {
             chai.request(backendHost)
                 .post('/passport/signup')
-                .send({ email: 'user102@mail.ru', password: '12345', username: 'user102', firstName: 'FirstName', lastName: 'LastName' })
+                .send({ email: 'user102@mail.ru', password: '12345', username: 'user102',
+                    firstName: 'FirstName', lastName: 'LastName' })
                 .end((err, res) => {
                     expect(res, makeContext(res)).to.have.status(201);
                     expect(res.body).to.have.property('firstName', 'FirstName');
@@ -138,7 +139,7 @@ describe('PASSPORT API', () => {
         it('it should not sign up with incorrect first name', done => {
             chai.request(backendHost)
                 .post('/passport/signup')
-                .send({ email: 'user103@mail.ru', password: '12345', username: 'user103', firstName: 'N'})
+                .send({ email: 'user103@mail.ru', password: '12345', username: 'user103', firstName: 'N' })
                 .end((err, res) => {
                     expect(res, makeContext(res)).to.have.status(400);
                     expect(res.body).to.have.property('message', 'First name must be not less then 3 symbols');
@@ -149,11 +150,11 @@ describe('PASSPORT API', () => {
 
     describe('POST /passport/editinfo', () => {
         it('it should successfully edit first name', done => {
-            var chaiReq = chai.request.agent(backendHost);
+            const chaiReq = chai.request.agent(backendHost);
             chaiReq
                 .post('/passport/signin')
                 .send({ email: 'user1@mail.ru', password: 'user1' })
-                .end((err, res) => {
+                .end(() => {
                     chaiReq
                         .post('/passport/editinfo')
                         .send({ firstName: 'FirstName' })
@@ -166,11 +167,11 @@ describe('PASSPORT API', () => {
         });
 
         it('it should successfully edit last name', done => {
-            var chaiReq = chai.request.agent(backendHost);
+            const chaiReq = chai.request.agent(backendHost);
             chaiReq
                 .post('/passport/signin')
                 .send({ email: 'user1@mail.ru', password: 'user1' })
-                .end((err, res) => {
+                .end(() => {
                     chaiReq
                         .post('/passport/editinfo')
                         .send({ lastName: 'LastName' })
@@ -183,11 +184,11 @@ describe('PASSPORT API', () => {
         });
 
         it('it should successfully edit first and last names together', done => {
-            var chaiReq = chai.request.agent(backendHost);
+            const chaiReq = chai.request.agent(backendHost);
             chaiReq
                 .post('/passport/signin')
                 .send({ email: 'user1@mail.ru', password: 'user1' })
-                .end((err, res) => {
+                .end(() => {
                     chaiReq
                         .post('/passport/editinfo')
                         .send({ firstName: 'FirstName', lastName: 'LastName' })
