@@ -19,7 +19,7 @@ describe('PASSPORT API', () => {
         sh.exec('yarn ts-node ./tasks/load-fixtures.ts', { silent: true });
     });
 
-/*    describe('POST /passport/signin', () => {
+    describe('POST /passport/signin', () => {
         it('it should successfully sign in', done => {
             chai.request(backendHost)
                 .post('/passport/signin')
@@ -64,9 +64,9 @@ describe('PASSPORT API', () => {
                 });
         });
     });
-*/
+
     describe('POST /passport/signup', () => {
-/*        it('it should sign up with success', done => {
+        it('it should sign up with success', done => {
             chai.request(backendHost)
                 .post('/passport/signup')
                 .send({ email: 'sikalov@mail.ru', password: '12345', username: 'sikalov' })
@@ -122,7 +122,7 @@ describe('PASSPORT API', () => {
                     done();
                 });
         });
-*/
+
         it('it should sign up with first and last names', done => {
             chai.request(backendHost)
                 .post('/passport/signup')
@@ -134,7 +134,7 @@ describe('PASSPORT API', () => {
                     done();
                 });
         });
-/*
+
         it('it should not sign up with incorrect first name', done => {
             chai.request(backendHost)
                 .post('/passport/signup')
@@ -209,6 +209,6 @@ describe('PASSPORT API', () => {
                     done();
                 });
         });
-*/
+
     });
 });
