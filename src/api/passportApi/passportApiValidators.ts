@@ -52,5 +52,25 @@ export const signUpValidator = celebrate({
                 'string.min': 'Username must be not less then 3 symbols',
                 'string.alphanum': 'Username must contain only a-z, A-Z, 0-9',
             }),
+	firstName: Joi
+            .string()
+	    .alphanum()
+	    .min(3)
+	    .max(50)
+	    .messages({
+		'string.min': 'First name must be not less then 3 symbols',
+		'string.max': 'First name must be not more then 50 symbols',
+                'string.alphanum': 'First name must contain only a-z, A-Z, 0-9',
+            }),
+	lastName: Joi
+            .string()
+	    .alphanum()
+	    .min(3)
+	    .max(50)
+	    .messages({
+		'string.min': 'Last name must be not less then 3 symbols',
+		'string.max': 'Last name must be not more then 50 symbols',
+                'string.alphanum': 'Last name must contain only a-z, A-Z, 0-9',
+            }),
     }),
 });
