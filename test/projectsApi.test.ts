@@ -67,7 +67,7 @@ describe('PROJECT API', () => {
                 .end(() => {
                     chaiReq
                         .post('/restapi/projects/add')
-                        .send({ name: 'ProjectName' })
+                        .send({ name: 'project_name', displayName: 'ProjectName' })
                         .end((err, res) => {
                             expect(res, makeContext(res)).to.have.status(201);
                             expect(res.body).to.have.all.keys(['availableProjects', 'projects']);
@@ -98,46 +98,31 @@ describe('PROJECT API', () => {
                 });
         });
 
-        it('it should add project to user shared with', done => {
+        it('it should add project to user shared with', async () => {
             const chaiReq = chai.request.agent(backendHost);
-            chaiReq
+            const signInRes = await chaiReq
                 .post('/passport/signin')
-                .send({ email: 'user4@mail.ru', password: 'user4' })
-                .end((err1, res1) => {
-                    const userId = res1.body.id;
-                    chaiReq
-                        .get('/passport/signout')
-                        .end(() => {
-                            chaiReq
-                                .post('/passport/signin')
-                                .send({ email: 'user1@mail.ru', password: 'user1' })
-                                .end(() => {
-                                    chaiReq
-                                        .post('/restapi/projects/add')
-                                        .send({ name: 'project1',
-                                            sharedWith: [{ id: userId, username: 'user4', avatar: null }] })
-                                        .end(() => {
-                                            chaiReq
-                                                .get('/passport/signout')
-                                                .end(() => {
-                                                    chaiReq
-                                                        .post('/passport/signin')
-                                                        .send({ email: 'user4@mail.ru', password: 'user4' })
-                                                        .end(() => {
-                                                            chaiReq
-                                                                .get('/restapi/projects/my')
-                                                                .end((err, res) => {
-                                                                    expect(res.body.availableProjects)
-                                                                        .to.have.length(1);
-                                                                    expect(res.body.projects).to.have.length(0);
-                                                                    done();
-                                                                });
-                                                        });
-                                                });
-                                        });
-                                });
-                        });
+                .send({ email: 'user4@mail.ru', password: 'user4' });
+            expect(signInRes, makeContext(signInRes)).to.have.status(202);
+            const { id: userId } = signInRes.body;
+            await chaiReq.get('/passport/signout');
+            await chaiReq
+                .post('/passport/signin')
+                .send({ email: 'user1@mail.ru', password: 'user1' });
+            const res = await chaiReq
+                .post('/restapi/projects/add')
+                .send({
+                    name: 'project1',
+                    displayName: 'project1',
+                    sharedWith: [{ id: userId, username: 'user4', avatar: null }],
                 });
+            expect(res, makeContext(res)).to.have.status(201);
+            await chaiReq
+                .post('/passport/signin')
+                .send({ email: 'user4@mail.ru', password: 'user4' });
+            const projectRes = await chaiReq.get('/restapi/projects/my');
+            const { availableProjects } = projectRes.body;
+            expect(availableProjects).to.have.length(1);
         });
     });
 });
