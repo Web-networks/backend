@@ -1,7 +1,7 @@
 import { pick } from 'lodash';
 import { projectModel } from 'models/projectModel';
 import { userModel } from 'models/userModel';
-import { IProject } from 'types';
+import { IProject, IUser } from 'types';
 import UserService, { IMinUserInfo } from './userService';
 
 
@@ -35,6 +35,26 @@ export class ProjectsService {
         const _ = ownerUser?.projects.push(newProject._id);
         await ownerUser?.save();
         return this.getProjects(ownerUser?._id);
+    }
+
+    public static async editProject(project: MinProjectsInfo, oldName: string) {
+        if (project.name !== oldName) {
+            if (await projectModel.exists({ name: project.name, owner: project.owner.id })) {
+                throw Error(`The project "${project.name}" already exists in your profile`);
+            }
+        }
+        const oldProject = await projectModel.findOne({ owner: project.owner.id, name: oldName });
+        if (!oldProject) {
+            throw Error(`No project with name "${oldName}" for user ${project.owner.id}`);
+        }
+        const nextSharedWith = await this.getSharedUsers(project.sharedWith.map(({ id }) => id));
+        oldProject.description = project.description;
+        oldProject.displayName = project.displayName;
+        oldProject.name = project.name;
+        oldProject.isPublic = project.isPublic;
+        oldProject.sharedWith = nextSharedWith;
+        await oldProject?.save();
+        return this.getProject(project.owner.username, oldProject.name);
     }
 
     public static async getProjects(userId: string) {
@@ -89,6 +109,18 @@ export class ProjectsService {
             throw new Error(`Project: ${projectName} not found`);
         }
         return this.getMinProjectInfo(projectDoc);
+    }
+
+    private static async getSharedUsers(sharedWith: string[]) {
+        const nextSharedWith: IUser[] = [];
+        for (const id of sharedWith) {
+            const user = await userModel.findById(id);
+            if (!user) {
+                throw new Error(`User with ${id} not found`);
+            }
+            nextSharedWith.push(user);
+        }
+        return nextSharedWith;
     }
 
 }

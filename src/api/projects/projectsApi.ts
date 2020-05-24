@@ -9,7 +9,8 @@ export const projectsRoute = Router();
 projectsRoute
     .post('/add', needAuthorization, addPostValidator, addProject)
     .get('/my', needAuthorization, myProjects)
-    .get('/info', infoGetValidator, getInfo);
+    .get('/info', infoGetValidator, getInfo)
+    .post('/:project/edit', needAuthorization, addPostValidator, editProject);
 
 
 async function addProject(req: Request, res: Response) {
@@ -18,6 +19,18 @@ async function addProject(req: Request, res: Response) {
     try {
         const nextProjects = await ProjectsService.saveProject({ ...projectParams, owner });
         res.status(201).json(nextProjects);
+    } catch (error) {
+        res.status(400).json({ message: error.toString() });
+    }
+}
+
+async function editProject(req: Request, res: Response) {
+    const owner = req.session?.user as IUserInfo;
+    const projectParams = req.body;
+    const oldName = req.params['project'];
+    try {
+        const nextProject = await ProjectsService.editProject({ ...projectParams, owner }, oldName);
+        res.status(201).json(nextProject);
     } catch (error) {
         res.status(400).json({ message: error.toString() });
     }
