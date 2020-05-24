@@ -6,13 +6,13 @@ import UserService, { IMinUserInfo } from './userService';
 
 
 type MinProjectsInfo = {
-    sharedWith?: Array<IMinUserInfo>;
+    sharedWith: Array<IMinUserInfo>;
     owner: IMinUserInfo;
 } & Omit<IProject, 'sharedWith' | 'owner'>;
 
 export class ProjectsService {
     public static projectsInfoFields: Array<keyof IProject> = [
-        'id', 'description', 'isPublic', 'name', 'owner', 'sharedWith',
+        'id', 'description', 'isPublic', 'name', 'owner', 'sharedWith', 'displayName',
     ];
 
     public static async saveProject(project: MinProjectsInfo) {
@@ -73,6 +73,22 @@ export class ProjectsService {
 
     public static getMinProjectsInfo<T extends IProject[]>(projects: T): MinProjectsInfo[] {
         return projects.map(project => this.getMinProjectInfo(project));
+    }
+
+    public static async getProject(owner: string, projectName: string): Promise<MinProjectsInfo> {
+        const userDoc = await userModel.findOne({ username: owner });
+        if (!userDoc) {
+            throw new Error(`User: ${owner} not found`);
+        }
+        const userId = userDoc._id;
+        const projectDoc = await projectModel
+            .findOne({ owner: userId, name: projectName })
+            .populate('owner')
+            .populate('sharedWith');
+        if (!projectDoc) {
+            throw new Error(`Project: ${projectName} not found`);
+        }
+        return this.getMinProjectInfo(projectDoc);
     }
 
 }
