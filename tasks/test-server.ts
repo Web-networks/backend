@@ -15,8 +15,11 @@ function main() {
         process.exit(1);
     }
     process.stdout.write(`🍗  ${chalk.yellowBright('Setting up DB...')}\n`);
-    // Pull mongo docker cantainer
-    sh.exec('docker pull mongo', { silent: true });
+    const [_, ...mongoImages] = sh.exec('docker images mongo', { silent: true }).split(/\n/).filter(Boolean);
+    if (!mongoImages.length) {
+        // Pull mongo docker cantainer
+        sh.exec('docker pull mongo');
+    }
     // Run DB locally in docker container
     const {
         code: dockerDBCode,
@@ -24,16 +27,16 @@ function main() {
         stderr: errorDocker,
     } = sh.exec(`docker run -d -p ${dbPort}:27017 mongo`, { silent: true });
     if (dockerDBCode) {
-        process.stderr.write(errorDocker);
+        console.error(errorDocker);
         process.exit(1);
     }
 
     // start server
     process.stdout.write(`🥩  ${chalk.yellowBright('Starting server...')}\n`);
-    const serverProcess = sh.exec('ts-node ./src/app.ts', { async: true, env: process.env, silent: true });
+    const serverProcess = sh.exec('ts-node ./src/app.ts', { env: process.env, silent: true, async: true });
     const timerToStop = setTimeout(() => {
         serverProcess.kill();
-        process.stderr.write('Server not started');
+        console.error(chalk.red('✘ Server not started!'));
         process.exit(1);
     }, maxTimeToWait);
 
@@ -47,8 +50,8 @@ function main() {
     };
     addShutdownFn(shutdownFunc);
 
-    // @ts-ignore
-    serverProcess.stdout.on('data', data => {
+    // eslint-disable-next-line no-unused-expressions
+    serverProcess.stdout?.on('data', data => {
         // check that server starts to work
         if (data.includes('Server listening')) {
             clearTimeout(timerToStop);
@@ -64,6 +67,17 @@ function main() {
             shell('yarn mocha').then(({ code }) => {
                 process.exit(code);
             });
+        }
+    });
+
+    // eslint-disable-next-line no-unused-expressions
+    serverProcess.stderr?.on('data', data => {
+        console.error(data);
+    });
+
+    serverProcess.on('exit', exitCode => {
+        if (exitCode) {
+            process.exit(exitCode);
         }
     });
 }

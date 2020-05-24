@@ -3,7 +3,14 @@ import { IProject } from 'types';
 
 export const addPostValidator = celebrate({
     [Segments.BODY]: Joi.object<IProject>().keys({
-        name: Joi.string().required(),
+        name: Joi
+            .string()
+            .regex(/^\w+$/i)
+            .required()
+            .messages({
+                'any.required': 'Name is required',
+                'string.regex': 'Use only letters and numbers for name of project',
+            }),
         displayName: Joi.string().required(),
         description: Joi.string(),
         sharedWith: Joi.array(),
