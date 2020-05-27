@@ -3,6 +3,7 @@ import { IUserInfo } from 'services/userService';
 import { ProjectsService } from 'services/projectsService';
 import { needAuthorization } from 'middlewares/authorization';
 import { addPostValidator, infoGetValidator } from './projectsApiValidators';
+import { IProject } from 'types';
 
 export const projectsRoute = Router();
 
@@ -12,6 +13,7 @@ projectsRoute
     .get('/info', infoGetValidator, getInfo)
     .post('/:project/edit', needAuthorization, addPostValidator, editProject);
 
+type ProjectInfo = Omit<IProject, 'id' | '_id' | 'owner'>;
 
 async function addProject(req: Request, res: Response) {
     const owner = req.session?.user as IUserInfo;
@@ -26,7 +28,7 @@ async function addProject(req: Request, res: Response) {
 
 async function editProject(req: Request, res: Response) {
     const owner = req.session?.user as IUserInfo;
-    const projectParams = req.body;
+    const projectParams = req.body as ProjectInfo;
     const oldName = req.params['project'];
     try {
         const nextProject = await ProjectsService.editProject({ ...projectParams, owner }, oldName);

@@ -1,14 +1,14 @@
 import { pick } from 'lodash';
 import { projectModel } from 'models/projectModel';
 import { userModel } from 'models/userModel';
-import { IProject, IUser } from 'types';
+import { IProject } from 'types';
 import UserService, { IMinUserInfo } from './userService';
 
 
 type MinProjectsInfo = {
     sharedWith: Array<IMinUserInfo>;
     owner: IMinUserInfo;
-} & Omit<IProject, 'sharedWith' | 'owner'>;
+} & Omit<IProject, 'sharedWith' | 'owner' | '_id' | 'id'>;
 
 export class ProjectsService {
     public static projectsInfoFields: Array<keyof IProject> = [
@@ -43,18 +43,40 @@ export class ProjectsService {
                 throw Error(`The project "${project.name}" already exists in your profile`);
             }
         }
+        const nextSharedWith = project.sharedWith.map(({ id }) => id);
+        const nextProject = {
+            ...project,
+            sharedWith: nextSharedWith,
+            owner: project.owner.id,
+        };
         const oldProject = await projectModel.findOne({ owner: project.owner.id, name: oldName });
-        if (!oldProject) {
+        const newProject = await projectModel.findOneAndUpdate(
+            { owner: project.owner.id, name: oldName },
+            nextProject,
+            { new: true },
+        );
+        if (!oldProject || !newProject) {
             throw Error(`No project with name "${oldName}" for user ${project.owner.id}`);
         }
-        const nextSharedWith = await this.getSharedUsers(project.sharedWith.map(({ id }) => id));
-        oldProject.description = project.description;
-        oldProject.displayName = project.displayName;
-        oldProject.name = project.name;
-        oldProject.isPublic = project.isPublic;
-        oldProject.sharedWith = nextSharedWith;
-        await oldProject?.save();
-        return this.getProject(project.owner.username, oldProject.name);
+        const oldSharedWith = oldProject.sharedWith;
+        const newSharedWith = newProject.sharedWith;
+        const sharedWith = oldSharedWith.concat(newSharedWith);
+        for (const u of sharedWith) {
+            const user = await userModel.findById(u);
+            if (!user) {
+                throw new Error(`User with id ${u.id} not found`);
+            }
+            if (oldSharedWith.includes(u) && !newSharedWith.includes(u)) {
+                const pos = user.availableProjects.findIndex(project => project._id === newProject._id);
+                user.availableProjects.splice(pos, 1);
+                user.save();
+            }
+            if (!oldSharedWith.includes(u) && newSharedWith.includes(u)) {
+                user.availableProjects.push(newProject._id);
+                user.save();
+            }
+        }
+        return this.getProject(project.owner.username, newProject.name);
     }
 
     public static async getProjects(userId: string) {
@@ -109,18 +131,6 @@ export class ProjectsService {
             throw new Error(`Project: ${projectName} not found`);
         }
         return this.getMinProjectInfo(projectDoc);
-    }
-
-    private static async getSharedUsers(sharedWith: string[]) {
-        const nextSharedWith: IUser[] = [];
-        for (const id of sharedWith) {
-            const user = await userModel.findById(id);
-            if (!user) {
-                throw new Error(`User with ${id} not found`);
-            }
-            nextSharedWith.push(user);
-        }
-        return nextSharedWith;
     }
 
 }
