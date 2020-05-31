@@ -9,7 +9,7 @@ export const addPostValidator = celebrate({
             .required()
             .messages({
                 'any.required': 'Name is required',
-                'string.regex': 'Use only letters and numbers for name of project',
+                'string.regex.base': 'Use only letters and numbers for name of project',
             }),
         displayName: Joi.string().required(),
         description: Joi.string(),
@@ -22,5 +22,20 @@ export const infoGetValidator = celebrate({
     [Segments.QUERY]: Joi.object().keys({
         user: Joi.string().required(),
         project: Joi.string().required(),
+    }),
+});
+
+export const editPostValidator = celebrate({
+    [Segments.BODY]: Joi.object<IProject>().keys({
+        name: Joi
+            .string()
+            .regex(/^\w+$/i)
+            .messages({
+                'string.regex.base': 'Use only letters and numbers for name of project',
+            }),
+        displayName: Joi.string(),
+        description: Joi.string(),
+        sharedWith: Joi.array(),
+        isPublic: Joi.boolean(),
     }),
 });

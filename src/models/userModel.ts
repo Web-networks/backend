@@ -2,9 +2,11 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import { IUser } from 'types';
 
-interface IUserModel extends IUser {
+export interface IUserModel extends Omit<IUser, 'projects' | 'availableProjects'> {
     verifyPassword: (candidate: string) => Promise<boolean>;
     password: string;
+    projects: string[];
+    availableProjects: string[];
 }
 
 const UserShema = new mongoose.Schema({

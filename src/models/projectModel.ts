@@ -1,6 +1,11 @@
 import mongoose from 'mongoose';
 import { IProject } from 'types';
 
+export interface IProjectModel extends Omit<IProject, 'sharedWith' | 'owner'> {
+    owner: string;
+    sharedWith: string[];
+}
+
 const ProjectSchema = new mongoose.Schema({
     owner: {
         type: mongoose.Types.ObjectId,
@@ -38,6 +43,6 @@ const ProjectSchema = new mongoose.Schema({
     },
 });
 
-export type ProjectDocument = IProject & mongoose.Document;
+export type ProjectDocument = IProjectModel & mongoose.Document;
 
 export const projectModel = mongoose.model<ProjectDocument>('Project', ProjectSchema);

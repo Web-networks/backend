@@ -12,7 +12,7 @@ function lastLoader(app: Application) {
 
     // error last handler middleware
     app.use((err: Error, req: Request, res: Response, _: NextFunction) => {
-        process.stderr.write(err.toString());
+        console.error(err);
         return res.status(500).json(err);
     });
 }
