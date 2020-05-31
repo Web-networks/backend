@@ -1,7 +1,6 @@
 import { pick, mergeWith } from 'lodash';
-import { projectModel, IProjectModel } from 'models/projectModel';
-import { userModel } from 'models/userModel';
-import { IProject } from 'types';
+import { projectModel, IProject, IProjectPopulated } from 'models/projectModel';
+import { userModel, IUserPopulated } from 'models/userModel';
 import UserService, { IMinUserInfo } from './userService';
 
 
@@ -36,8 +35,15 @@ export class ProjectsService {
         return this.getProjects(user.id);
     }
 
-    public static async editProject(id: string, project: Partial<MinProjectsInfo>) {
-        const projectModel = mergeWith(project,
+    public static async editProject(id: string, userId: string, project: Partial<IProjectPopulated>) {
+        const currentProject = await projectModel.findById(id);
+        if (!currentProject) {
+            throw new Error('Project not found');
+        }
+        if (String(currentProject.owner) !== userId && !currentProject.sharedWith.includes(userId)) {
+            throw new Error('You have not enough permissions to edit this project');
+        }
+        const nextProjectModel = mergeWith(project,
             {
                 sharedWith: project?.sharedWith?.map(({ id }) => id),
                 owner: project?.owner?.id,
@@ -46,7 +52,7 @@ export class ProjectsService {
                     return srcValue;
                 }
             });
-        return this.updateProjectById(id, projectModel);
+        return this.updateProjectById(id, nextProjectModel);
     }
 
     public static async getProjects(userId: string) {
@@ -67,7 +73,7 @@ export class ProjectsService {
                 }, {
                     path: 'owner',
                 }],
-            }) as any;
+            }) as IUserPopulated;
         if (!user) {
             throw Error(`User with id: "${userId}" not found`);
         }
@@ -76,14 +82,14 @@ export class ProjectsService {
         return { availableProjects, projects };
     }
 
-    public static getMinProjectInfo<T extends IProject>(project: T): MinProjectsInfo {
+    public static getMinProjectInfo<T extends IProjectPopulated>(project: T) {
         const nextProject = pick(project, this.projectsInfoFields);
         const nextSharedWith = UserService.getMinUsersInfo(nextProject.sharedWith);
         const nextOwner = UserService.getMinUserInfo(nextProject.owner);
         return { ...nextProject, owner: nextOwner, sharedWith: nextSharedWith };
     }
 
-    public static getMinProjectsInfo<T extends IProject[]>(projects: T): MinProjectsInfo[] {
+    public static getMinProjectsInfo<T extends IProjectPopulated[]>(projects: T) {
         return projects.map(project => this.getMinProjectInfo(project));
     }
 
@@ -105,7 +111,7 @@ export class ProjectsService {
 
     private static async updateProjectById(
         id: string,
-        updateProjectParams: Partial<IProjectModel>,
+        updateProjectParams: Partial<IProjectPopulated>,
     ): Promise<MinProjectsInfo> {
         const currentProjectDoc = await projectModel.findById(id);
         if (!currentProjectDoc) {

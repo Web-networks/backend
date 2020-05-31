@@ -1,8 +1,8 @@
 import { celebrate, Segments, Joi } from 'celebrate';
-import { IProject } from 'types';
+import { IProjectPopulated } from 'models/projectModel';
 
 export const addPostValidator = celebrate({
-    [Segments.BODY]: Joi.object<IProject>().keys({
+    [Segments.BODY]: Joi.object<IProjectPopulated>().keys({
         name: Joi
             .string()
             .regex(/^\w+$/i)
@@ -26,7 +26,7 @@ export const infoGetValidator = celebrate({
 });
 
 export const editPostValidator = celebrate({
-    [Segments.BODY]: Joi.object<IProject>().keys({
+    [Segments.BODY]: Joi.object<IProjectPopulated>().keys({
         name: Joi
             .string()
             .regex(/^\w+$/i)

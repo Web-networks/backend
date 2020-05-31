@@ -3,7 +3,7 @@ import { IUserInfo } from 'services/userService';
 import { ProjectsService } from 'services/projectsService';
 import { needAuthorization } from 'middlewares/authorization';
 import { addPostValidator, infoGetValidator, editPostValidator } from './projectsApiValidators';
-import { IProject } from 'types';
+import { IProjectPopulated } from 'models/projectModel';
 
 export const projectsRoute = Router();
 
@@ -13,7 +13,7 @@ projectsRoute
     .get('/info', infoGetValidator, getInfo)
     .post('/:id/edit', needAuthorization, editPostValidator, editProject);
 
-type ProjectInfo = Partial<IProject>;
+type ProjectInfo = Partial<IProjectPopulated>;
 
 async function addProject(req: Request, res: Response) {
     const owner = req.session?.user as IUserInfo;
@@ -27,11 +27,11 @@ async function addProject(req: Request, res: Response) {
 }
 
 async function editProject(req: Request, res: Response) {
-    // const user = req.session?.user as IUserInfo;
+    const { id: userId } = req.session?.user as IUserInfo;
     const projectParams = req.body as ProjectInfo;
     const projectId = req.params['id'];
     try {
-        const nextProject = await ProjectsService.editProject(projectId, { ...projectParams });
+        const nextProject = await ProjectsService.editProject(projectId, userId, { ...projectParams });
         res.status(201).json(nextProject);
     } catch (error) {
         console.error(error);

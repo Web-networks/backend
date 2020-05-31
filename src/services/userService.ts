@@ -1,7 +1,6 @@
-import { pick, remove } from 'lodash';
-import { IUser } from 'types';
+import { pick } from 'lodash';
 
-import userModel from 'models/userModel';
+import { userModel, IUser } from 'models/userModel';
 
 export type IUserSignUp = Omit<IUser, 'id'>;
 export type IUserInfo = Omit<IUser, 'password'>;
@@ -82,7 +81,7 @@ class UserService {
     public static async removeOwnProject(userId: string, projectId: string) {
         const user = await userModel.findById(userId);
         if (user?.projects) {
-            remove(user?.projects, projectId);
+            user?.projects.remove(projectId);
             await user?.save();
         }
         return user?.populate('projects').populate('availbleProjects');
@@ -98,7 +97,7 @@ class UserService {
     public static async removeAvailableProject(userId: string, projectId: string) {
         const user = await userModel.findById(userId);
         if (user?.availableProjects) {
-            remove(user?.availableProjects, projectId);
+            user?.availableProjects.remove(projectId);
             await user?.save();
         }
         return user?.populate('projects').populate('availbleProjects');
