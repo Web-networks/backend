@@ -43,7 +43,7 @@ export class ProjectsService {
         if (String(currentProject.owner) !== userId && !currentProject.sharedWith.includes(userId)) {
             throw new Error('You have not enough permissions to edit this project');
         }
-        const nextProjectModel = mergeWith(project,
+        const nextProjectModel = mergeWith({}, project,
             {
                 sharedWith: project?.sharedWith?.map(({ id }) => id),
                 owner: project?.owner?.id,
@@ -118,11 +118,13 @@ export class ProjectsService {
             throw new Error('Project not found');
         }
         const currentProject = pick(currentProjectDoc, this.projectsInfoFields);
-        const nextProject = mergeWith(currentProject, updateProjectParams, (objValue, srcValue) => {
+        const nextProject = mergeWith({}, currentProject, updateProjectParams, (objValue, srcValue) => {
             if (Array.isArray(objValue) && Array.isArray(srcValue)) {
                 return srcValue.slice();
             }
         });
+        // console.log('currentProject:', currentProject);
+        // console.log('nextPropject:', nextProject);
         await Promise.all(currentProject.sharedWith.map(async userId => {
             await UserService.removeAvailableProject(userId, id);
         }));

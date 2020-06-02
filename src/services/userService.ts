@@ -84,14 +84,14 @@ class UserService {
             user?.projects.remove(projectId);
             await user?.save();
         }
-        return user?.populate('projects').populate('availbleProjects');
+        return user?.populate('projects').populate('availableProjects');
     }
 
     public static async addAvailableProject(userId: string, projectId: string) {
         const user = await userModel.findById(userId);
         user?.availableProjects.push(projectId);
         await user?.save();
-        return user?.populate('projects').populate('availbleProjects');
+        return user?.populate('projects').populate('availableProjects');
     }
 
     public static async removeAvailableProject(userId: string, projectId: string) {
@@ -100,7 +100,7 @@ class UserService {
             user?.availableProjects.remove(projectId);
             await user?.save();
         }
-        return user?.populate('projects').populate('availbleProjects');
+        return user?.populate('projects').populate('availableProjects');
     }
 
     public static getMinUsersInfo<T extends IMinUserInfo>(users: T[]) {
