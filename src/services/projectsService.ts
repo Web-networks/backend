@@ -1,7 +1,6 @@
-import { pick } from 'lodash';
-import { projectModel } from 'models/projectModel';
-import { userModel } from 'models/userModel';
-import { IProject } from 'types';
+import { pick, mergeWith } from 'lodash';
+import { projectModel, IProject, IProjectPopulated } from 'models/projectModel';
+import { userModel, IUserPopulated } from 'models/userModel';
 import UserService, { IMinUserInfo } from './userService';
 
 
@@ -27,14 +26,33 @@ export class ProjectsService {
         };
         const newProject = await projectModel.create(nextProject);
         await Promise.all(newProject.sharedWith.map(async userId => {
-            const user = await userModel.findById(userId);
-            const _ = user?.availableProjects.push(newProject._id);
-            return user?.save();
+            await UserService.addAvailableProject(userId, newProject.id);
         }));
-        const ownerUser = await userModel.findById(newProject.owner);
-        const _ = ownerUser?.projects.push(newProject._id);
-        await ownerUser?.save();
-        return this.getProjects(ownerUser?._id);
+        const user = await UserService.addOwnProject(nextProject.owner, newProject.id);
+        if (!user) {
+            throw new Error('No owner');
+        }
+        return this.getProjects(user.id);
+    }
+
+    public static async editProject(id: string, userId: string, project: Partial<IProjectPopulated>) {
+        const currentProject = await projectModel.findById(id);
+        if (!currentProject) {
+            throw new Error('Project not found');
+        }
+        if (String(currentProject.owner) !== userId && !currentProject.sharedWith.includes(userId)) {
+            throw new Error('You have not enough permissions to edit this project');
+        }
+        const nextProjectModel = mergeWith({}, project,
+            {
+                sharedWith: project?.sharedWith?.map(({ id }) => id),
+                owner: project?.owner?.id,
+            }, (objValue, srcValue) => {
+                if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+                    return srcValue;
+                }
+            });
+        return this.updateProjectById(id, nextProjectModel);
     }
 
     public static async getProjects(userId: string) {
@@ -55,7 +73,7 @@ export class ProjectsService {
                 }, {
                     path: 'owner',
                 }],
-            });
+            }) as IUserPopulated;
         if (!user) {
             throw Error(`User with id: "${userId}" not found`);
         }
@@ -64,14 +82,14 @@ export class ProjectsService {
         return { availableProjects, projects };
     }
 
-    public static getMinProjectInfo<T extends IProject>(project: T): MinProjectsInfo {
+    public static getMinProjectInfo<T extends IProjectPopulated>(project: T) {
         const nextProject = pick(project, this.projectsInfoFields);
         const nextSharedWith = UserService.getMinUsersInfo(nextProject.sharedWith);
         const nextOwner = UserService.getMinUserInfo(nextProject.owner);
         return { ...nextProject, owner: nextOwner, sharedWith: nextSharedWith };
     }
 
-    public static getMinProjectsInfo<T extends IProject[]>(projects: T): MinProjectsInfo[] {
+    public static getMinProjectsInfo<T extends IProjectPopulated[]>(projects: T) {
         return projects.map(project => this.getMinProjectInfo(project));
     }
 
@@ -84,9 +102,50 @@ export class ProjectsService {
         const projectDoc = await projectModel
             .findOne({ owner: userId, name: projectName })
             .populate('owner')
-            .populate('sharedWith');
+            .populate('sharedWith') as any;
         if (!projectDoc) {
             throw new Error(`Project: ${projectName} not found`);
+        }
+        return this.getMinProjectInfo(projectDoc);
+    }
+
+    private static async updateProjectById(
+        id: string,
+        updateProjectParams: Partial<IProjectPopulated>,
+    ): Promise<MinProjectsInfo> {
+        const currentProjectDoc = await projectModel.findById(id);
+        if (!currentProjectDoc) {
+            throw new Error('Project not found');
+        }
+        const currentProject = pick(currentProjectDoc, this.projectsInfoFields);
+        const nextProject = mergeWith({}, currentProject, updateProjectParams, (objValue, srcValue) => {
+            if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+                return srcValue.slice();
+            }
+        });
+        // console.log('currentProject:', currentProject);
+        // console.log('nextPropject:', nextProject);
+        await Promise.all(currentProject.sharedWith.map(async userId => {
+            await UserService.removeAvailableProject(userId, id);
+        }));
+        await UserService.removeOwnProject(currentProject.owner, id);
+        const projectWithTheSameName = await projectModel.countDocuments({
+            owner: nextProject.owner,
+            name: nextProject.name,
+        });
+        if (projectWithTheSameName > 1) {
+            throw new Error(`Project with the same name: ${nextProject.name} already exists for owner`);
+        }
+        await Promise.all(nextProject.sharedWith.map(async userId => {
+            await UserService.addAvailableProject(userId, id);
+        }));
+        await UserService.addOwnProject(nextProject.owner, id);
+        const projectDoc = await projectModel
+            .findByIdAndUpdate(id, nextProject, { new: true })
+            .populate('owner')
+            .populate('sharedWith') as any;
+        if (!projectDoc) {
+            throw new Error('Project was not updated');
         }
         return this.getMinProjectInfo(projectDoc);
     }

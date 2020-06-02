@@ -2,15 +2,18 @@ import { Router, Request, Response } from 'express';
 import { IUserInfo } from 'services/userService';
 import { ProjectsService } from 'services/projectsService';
 import { needAuthorization } from 'middlewares/authorization';
-import { addPostValidator, infoGetValidator } from './projectsApiValidators';
+import { addPostValidator, infoGetValidator, editPostValidator } from './projectsApiValidators';
+import { IProjectPopulated } from 'models/projectModel';
 
 export const projectsRoute = Router();
 
 projectsRoute
     .post('/add', needAuthorization, addPostValidator, addProject)
     .get('/my', needAuthorization, myProjects)
-    .get('/info', infoGetValidator, getInfo);
+    .get('/info', infoGetValidator, getInfo)
+    .post('/:id/edit', needAuthorization, editPostValidator, editProject);
 
+type ProjectInfo = Partial<IProjectPopulated>;
 
 async function addProject(req: Request, res: Response) {
     const owner = req.session?.user as IUserInfo;
@@ -19,6 +22,19 @@ async function addProject(req: Request, res: Response) {
         const nextProjects = await ProjectsService.saveProject({ ...projectParams, owner });
         res.status(201).json(nextProjects);
     } catch (error) {
+        res.status(400).json({ message: error.toString() });
+    }
+}
+
+async function editProject(req: Request, res: Response) {
+    const { id: userId } = req.session?.user as IUserInfo;
+    const projectParams = req.body as ProjectInfo;
+    const projectId = req.params['id'];
+    try {
+        const nextProject = await ProjectsService.editProject(projectId, userId, { ...projectParams });
+        res.status(201).json(nextProject);
+    } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.toString() });
     }
 }

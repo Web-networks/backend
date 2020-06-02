@@ -1,5 +1,5 @@
-import mongoose from 'mongoose';
-import { IProject } from 'types';
+import mongoose, { Document, Types, Model } from 'mongoose';
+import { IUser } from 'models/userModel';
 
 const ProjectSchema = new mongoose.Schema({
     owner: {
@@ -38,6 +38,27 @@ const ProjectSchema = new mongoose.Schema({
     },
 });
 
-export type ProjectDocument = IProject & mongoose.Document;
 
-export const projectModel = mongoose.model<ProjectDocument>('Project', ProjectSchema);
+// https://medium.com/@agentwhs/complete-guide-for-typescript-for-mongoose-for-node-js-8cc0a7e470c1
+interface IProjectShema extends Document {
+    name: string;
+    displayName: string;
+    description?: string;
+    isPublic: boolean;
+}
+
+interface IProjectBase extends IProjectShema { /* virtual fields + methods for doc here */ }
+
+export interface IProject extends IProjectBase {
+    owner: IUser['_id'];
+    sharedWith: Types.Array<IUser['_id']>;
+}
+
+export interface IProjectPopulated extends IProjectBase {
+    owner: IUser;
+    sharedWith: IUser[];
+}
+
+export interface IProjectModel extends Model<IProject> { /* some static methods here */ }
+
+export const projectModel = mongoose.model<IProject>('Project', ProjectSchema);

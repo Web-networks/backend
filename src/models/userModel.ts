@@ -1,11 +1,6 @@
-import mongoose from 'mongoose';
+import mongoose, { Types, Document, Model } from 'mongoose';
 import bcrypt from 'bcrypt';
-import { IUser } from 'types';
-
-interface IUserModel extends IUser {
-    verifyPassword: (candidate: string) => Promise<boolean>;
-    password: string;
-}
+import { IProject } from 'models/projectModel';
 
 const UserShema = new mongoose.Schema({
     username: {
@@ -57,22 +52,44 @@ const UserShema = new mongoose.Schema({
     ],
 });
 
-export type UserDocument = IUserModel & mongoose.Document;
-
-UserShema.pre('save', async function save(next) {
-    const user = this as UserDocument;
-    if (!user.isModified('password')) {
-        return next();
-    }
-    const sault = await bcrypt.genSalt();
-    const hashPassword = await bcrypt.hash(user.password, sault);
-    user.password = hashPassword;
-    next();
-});
+interface IUserShema extends Document {
+    id: string;
+    username: string;
+    email: string;
+    password: string;
+    avatar?: string;
+    firstName?: string;
+    lastName?: string;
+}
 
 UserShema.methods.verifyPassword = function (candidate: string): Promise<boolean> {
     return bcrypt.compare(candidate, this.password);
 };
 
-export const userModel = mongoose.model<UserDocument>('User', UserShema);
-export default userModel;
+interface IUserBase extends IUserShema {
+    verifyPassword(candidate: string): Promise<boolean>;
+}
+
+export interface IUser extends IUserBase {
+    projects: Types.Array<IProject['_id']>;
+    availableProjects: Types.Array<IProject['_id']>;
+}
+
+export interface IUserPopulated extends IUserBase {
+    projects: IProject[];
+    availableProjects: IProject[];
+}
+
+export interface IUserModel extends Model<IUser> {}
+
+UserShema.pre<IUser>('save', async function save(next) {
+    if (!this.isModified('password')) {
+        return next();
+    }
+    const sault = await bcrypt.genSalt();
+    const hashPassword = await bcrypt.hash(this.password, sault);
+    this.password = hashPassword;
+    next();
+});
+
+export const userModel = mongoose.model<IUser, IUserModel>('User', UserShema);
