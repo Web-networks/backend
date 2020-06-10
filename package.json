@@ -14,8 +14,12 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn lint"
+      "pre-commit": "npx --no-install lint-staged"
     }
+  },
+  "lint-staged": {
+    "*.js": "npx eslint",
+    "*.ts?(x)": "npx eslint"
   },
   "_moduleDirectories": [
     "build",
@@ -75,6 +79,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-sonarjs": "^0.5.0",
     "husky": "^4.2.1",
+    "lint-staged": "^10.2.9",
     "mocha": "^7.0.1",
     "ts-node-dev": "^1.0.0-pre.44"
   }
