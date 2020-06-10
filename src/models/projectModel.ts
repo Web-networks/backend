@@ -1,5 +1,6 @@
 import mongoose, { Document, Types, Model } from 'mongoose';
 import { IUser } from 'models/userModel';
+import { INeuroModel } from 'models/neuroModel';
 
 const ProjectSchema = new mongoose.Schema({
     owner: {
@@ -27,7 +28,7 @@ const ProjectSchema = new mongoose.Schema({
 
     sharedWith: [
         {
-            type: mongoose.Types.ObjectId,
+            type: Types.ObjectId,
             ref: 'User',
         },
     ],
@@ -35,6 +36,11 @@ const ProjectSchema = new mongoose.Schema({
     isPublic: {
         type: Boolean,
         default: false,
+    },
+
+    neuroModel: {
+        type: Types.ObjectId,
+        ref: 'NeuroModel',
     },
 });
 
@@ -52,11 +58,13 @@ interface IProjectBase extends IProjectShema { /* virtual fields + methods for d
 export interface IProject extends IProjectBase {
     owner: IUser['_id'];
     sharedWith: Types.Array<IUser['_id']>;
+    neuroModel?: INeuroModel['_id'];
 }
 
 export interface IProjectPopulated extends IProjectBase {
     owner: IUser;
     sharedWith: IUser[];
+    neuroModel?: INeuroModel;
 }
 
 export interface IProjectModel extends Model<IProject> { /* some static methods here */ }

@@ -109,6 +109,30 @@ export class ProjectsService {
         return this.getMinProjectInfo(projectDoc);
     }
 
+    public static async addNeuroModel(projectId: string, modelId: string): Promise<void> {
+        const project = await projectModel.findById(projectId);
+        if (!project) {
+            throw new Error('Project not found to add model');
+        }
+        if (project.neuroModel) {
+            throw new Error('Model already exists for this project');
+        }
+        project.neuroModel = modelId;
+        await project.save();
+    }
+
+    public static async removeNeuroModel(projectId: string): Promise<void> {
+        const project = await projectModel.findById(projectId);
+        if (!project) {
+            throw new Error('Project not found to remove model');
+        }
+        if (!project.neuroModel) {
+            throw new Error('Not existing model to remove');
+        }
+        delete project.neuroModel;
+        await project.save();
+    }
+
     private static async updateProjectById(
         id: string,
         updateProjectParams: Partial<IProjectPopulated>,
