@@ -1,9 +1,15 @@
-import { omit } from 'lodash';
-import { INeuroModel, neuroModel } from 'models/neuroModel';
+import { omit, pick } from 'lodash';
+import { INeuroModel, neuroModel, INeuroModelPopulated } from 'models/neuroModel';
 import { ProjectsService } from 'services/projectsService';
 
+type INeuroModelInfo = Partial<INeuroModelPopulated>;
+
 export class NeuroModelService {
-    public static async createModel(projectId: string, options?: Partial<INeuroModel>): Promise<INeuroModel> {
+    private static readonly fieldsInfo: Array<keyof INeuroModel> = [
+        'loss', 'optimizer', 'metrics', 'id', 'layers', 'project',
+    ];
+
+    public static async createModel(projectId: string, options?: Partial<INeuroModel>): Promise<INeuroModelInfo> {
         const neuroModelOptions = omit(options, ['layers', 'project']);
         const neuroModelPrototype = {
             project: projectId,
@@ -11,7 +17,7 @@ export class NeuroModelService {
         };
         const neuroModelCreated = await neuroModel.create(neuroModelPrototype);
         await ProjectsService.addNeuroModel(projectId, neuroModelCreated.id);
-        return neuroModelCreated;
+        return this.getModelInfo(neuroModelCreated);
     }
 
     public static async removeModel(modelId: string): Promise<void> {
@@ -21,5 +27,12 @@ export class NeuroModelService {
         }
         const projectId = modelToRemove.project;
         await ProjectsService.removeNeuroModel(projectId);
+    }
+
+    private static getModelInfo(neuroModel: INeuroModel): INeuroModelInfo {
+        const neuroModelPopulated = neuroModel
+            .populate('layers')
+            .populate('project') as INeuroModelPopulated;
+        return pick(neuroModelPopulated, this.fieldsInfo);
     }
 }

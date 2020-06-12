@@ -1,8 +1,8 @@
 import { celebrate, Segments, Joi } from 'celebrate';
-import { INeuroModelPopulated } from 'models/neuroModel';
+import { INeuroModel } from 'models/neuroModel';
 
 export const addPostValidator = celebrate({
-    [Segments.BODY]: Joi.object<INeuroModelPopulated>().keys({
+    [Segments.BODY]: Joi.object<INeuroModel>().keys({
         project: Joi
             .string()
             .required()
