@@ -34,3 +34,9 @@ export const removeGetValidator = celebrate({
             .required(),
     }),
 });
+
+export const getLayersValidator = celebrate({
+    [Segments.QUERY]: Joi.object().keys({
+        model: Joi.string().required(),
+    }),
+});

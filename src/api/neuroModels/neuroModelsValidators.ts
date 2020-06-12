@@ -20,3 +20,9 @@ export const removeGetValidator = celebrate({
         modelId: Joi.string().required(),
     }),
 });
+
+export const getModelValidator = celebrate({
+    [Segments.QUERY]: Joi.object().keys({
+        project: Joi.string().required(),
+    }),
+});

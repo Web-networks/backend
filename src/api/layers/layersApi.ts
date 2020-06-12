@@ -1,6 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { needAuthorization } from 'middlewares/authorization';
-import { addPostValidator, removeGetValidator, editPostValidator } from './layersApiValidators';
+import {
+    addPostValidator,
+    removeGetValidator,
+    editPostValidator,
+    getLayersValidator,
+} from './layersApiValidators';
 import { LayerService } from 'services/layerService';
 
 export const layersRouter = Router();
@@ -9,6 +14,7 @@ layersRouter
     .post('/add', needAuthorization, addPostValidator, addLayer)
     .get('/remove', needAuthorization, removeGetValidator, removeLayer)
     .post('/edit', needAuthorization, editPostValidator, editLayer)
+    .get('/get', needAuthorization, getLayersValidator, getLayers)
     .get('/:id/info', needAuthorization, getLayerInfo);
 
 async function addLayer(req: Request, res: Response) {
@@ -46,6 +52,16 @@ async function getLayerInfo(req: Request, res: Response) {
     try {
         const layerInfo = await LayerService.getLayerInfoById(layerId);
         res.status(200).json(layerInfo);
+    } catch (error) {
+        res.status(400).json({ message: error.toString() });
+    }
+}
+
+async function getLayers(req: Request, res: Response) {
+    const { model: modelId } = req.query;
+    try {
+        const layers = await LayerService.getLayers(modelId);
+        res.status(200).json(layers);
     } catch (error) {
         res.status(400).json({ message: error.toString() });
     }

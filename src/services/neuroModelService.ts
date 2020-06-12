@@ -65,6 +65,14 @@ export class NeuroModelService {
         return this.getModelInfo(model);
     }
 
+    public static async getModelByProjectId(projectId: string): Promise<INeuroModelInfo> {
+        const model = await neuroModel.findOne({ project: projectId });
+        if (!model) {
+            throw new Error('Model not found');
+        }
+        return this.getModelInfo(model);
+    }
+
     private static getModelInfo(neuroModel: INeuroModel): INeuroModelInfo {
         const neuroModelPopulated = neuroModel
             .populate('layers')
