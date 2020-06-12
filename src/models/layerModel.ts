@@ -1,9 +1,9 @@
-import mongoose, { Document, Types, Model } from 'mongoose';
+import mongoose, { Document, Model } from 'mongoose';
 import { INeuroModel } from 'models/neuroModel';
 
 const LayerShema = new mongoose.Schema({
     model: {
-        type: Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: 'NeuroModel',
     },
     type: {

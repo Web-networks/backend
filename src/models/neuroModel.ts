@@ -16,12 +16,12 @@ const NeuroModelSchema = new mongoose.Schema({
     },
     layers: [
         {
-            type: Types.ObjectId,
+            type: mongoose.Types.ObjectId,
             ref: 'Layer',
         },
     ],
     project: {
-        type: Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: 'Project',
     },
 });

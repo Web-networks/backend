@@ -28,7 +28,7 @@ const ProjectSchema = new mongoose.Schema({
 
     sharedWith: [
         {
-            type: Types.ObjectId,
+            type: mongoose.Types.ObjectId,
             ref: 'User',
         },
     ],
@@ -39,7 +39,7 @@ const ProjectSchema = new mongoose.Schema({
     },
 
     neuroModel: {
-        type: Types.ObjectId,
+        type: mongoose.Types.ObjectId,
         ref: 'NeuroModel',
     },
 });

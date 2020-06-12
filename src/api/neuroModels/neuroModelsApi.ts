@@ -8,8 +8,9 @@ import { NeuroModelService } from 'services/neuroModelService';
 export const neuroModelsRoute = Router();
 
 neuroModelsRoute
-    .post('create', needAuthorization, addPostValidator, addModel)
-    .get('remove', needAuthorization, removeGetValidator, removeModel);
+    .post('/create', needAuthorization, addPostValidator, addModel)
+    .get('/remove', needAuthorization, removeGetValidator, removeModel)
+    .get('/:id/info', needAuthorization, getModelInfo);
 
 async function addModel(req: Request, res: Response) {
     const { project, ...options } = req.body;
@@ -28,6 +29,16 @@ async function removeModel(req: Request, res: Response) {
     try {
         await NeuroModelService.removeModel(modelId);
         res.status(200);
+    } catch (error) {
+        res.status(400).json({ message: error.toString() });
+    }
+}
+
+async function getModelInfo(req: Request, res: Response) {
+    const modelId = req.params['id'];
+    try {
+        const modelInfo = await NeuroModelService.getModelInfoById(modelId);
+        res.status(200).json(modelInfo);
     } catch (error) {
         res.status(400).json({ message: error.toString() });
     }

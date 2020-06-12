@@ -43,7 +43,7 @@ export class LayerService {
         return this.getLayersInfoByIds(layersIds);
     }
 
-    private static async getLayerInfoById(layerId: string): Promise<ILayerPopulated> {
+    public static async getLayerInfoById(layerId: string): Promise<ILayerPopulated> {
         const layer = await layerModel.findById(layerId);
         if (!layer) {
             throw new Error('Layer not found');
