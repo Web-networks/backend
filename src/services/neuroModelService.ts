@@ -29,6 +29,42 @@ export class NeuroModelService {
         await ProjectsService.removeNeuroModel(projectId);
     }
 
+    public static async addLayerToModel(modelId: string, layerId: string): Promise<string[]> {
+        const model = await neuroModel.findById(modelId);
+        if (!model) {
+            throw new Error('Model not found');
+        }
+        model.layers.push(layerId);
+        await model.save();
+        return model.layers.map(String);
+    }
+
+    public static async removeLayerFromModel(modelId: string, layerId: string): Promise<string[]> {
+        const model = await neuroModel.findById(modelId);
+        if (!model) {
+            throw new Error('Model not found');
+        }
+        model.layers.remove(layerId);
+        await model.save();
+        return model.layers.map(String);
+    }
+
+    public static async getLayers(modelId: string): Promise<string[]> {
+        const model = await neuroModel.findById(modelId);
+        if (!model) {
+            throw new Error('Model not found');
+        }
+        return model.layers.map(String);
+    }
+
+    public static async getModelInfoById(modelId: string): Promise<INeuroModelInfo> {
+        const model = await neuroModel.findById(modelId);
+        if (!model) {
+            throw new Error('Model not found');
+        }
+        return this.getModelInfo(model);
+    }
+
     private static getModelInfo(neuroModel: INeuroModel): INeuroModelInfo {
         const neuroModelPopulated = neuroModel
             .populate('layers')
