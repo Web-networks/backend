@@ -27,6 +27,7 @@ export class NeuroModelService {
         }
         const projectId = modelToRemove.project;
         await ProjectsService.removeNeuroModel(projectId);
+        await neuroModel.findByIdAndRemove(modelId);
     }
 
     public static async addLayerToModel(modelId: string, layerId: string): Promise<string[]> {

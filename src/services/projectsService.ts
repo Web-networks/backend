@@ -129,13 +129,14 @@ export class ProjectsService {
         if (!project.neuroModel) {
             throw new Error('Not existing model to remove');
         }
-        delete project.neuroModel;
+        // eslint-disable-next-line no-undefined
+        project.neuroModel = undefined;
         await project.save();
     }
 
     public static async checkRightsForProject(projectId: string, userId: string): Promise<void> {
         const project = await projectModel.findById(projectId);
-        if (String(project?.owner) !== projectId || project?.sharedWith.includes(userId)) {
+        if (String(project?.owner) !== projectId && project?.sharedWith.includes(userId)) {
             throw new Error('Acess forbidden to this project');
         }
     }
