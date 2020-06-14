@@ -15,6 +15,20 @@ export const addPostValidator = celebrate({
     }),
 });
 
+export const editModelValidator = celebrate({
+    [Segments.BODY]: Joi.object().keys({
+        modelId: Joi
+            .string()
+            .required()
+            .messages({
+                'any.required': 'Model id is required',
+            }),
+        loss: Joi.string(),
+        optimizer: Joi.string(),
+        metrics: Joi.string(),
+    }),
+});
+
 export const removeGetValidator = celebrate({
     [Segments.QUERY]: Joi.object().keys({
         modelId: Joi.string().required(),

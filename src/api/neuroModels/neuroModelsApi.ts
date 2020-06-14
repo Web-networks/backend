@@ -3,6 +3,7 @@ import {
     addPostValidator,
     removeGetValidator,
     getModelValidator,
+    editModelValidator,
 } from './neuroModelsValidators';
 import { needAuthorization } from 'middlewares/authorization';
 import { IUser } from 'models/userModel';
@@ -13,6 +14,7 @@ export const neuroModelsRoute = Router();
 
 neuroModelsRoute
     .post('/create', needAuthorization, addPostValidator, addModel)
+    .post('/edit', needAuthorization, editModelValidator, editModel)
     .get('/remove', needAuthorization, removeGetValidator, removeModel)
     .get('/get', needAuthorization, getModelValidator, getModelByProjectId)
     .get('/:id/info', needAuthorization, getModelInfo);
@@ -54,6 +56,16 @@ async function getModelByProjectId(req: Request, res: Response) {
     const { project: projectId } = req.query;
     try {
         const modelInfo = await NeuroModelService.getModelByProjectId(projectId);
+        res.status(200).json(modelInfo);
+    } catch (error) {
+        res.status(400).json({ message: error.toString() });
+    }
+}
+
+async function editModel(req: Request, res: Response) {
+    const { modelId, ...options } = req.body;
+    try {
+        const modelInfo = await NeuroModelService.editModel(modelId, options);
         res.status(200).json(modelInfo);
     } catch (error) {
         res.status(400).json({ message: error.toString() });

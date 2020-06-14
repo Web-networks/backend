@@ -25,7 +25,9 @@ export class NeuroModelService {
         if (!modelToRemove) {
             throw new Error('Model not found to remove');
         }
+        const { layers } = modelToRemove;
         const projectId = modelToRemove.project;
+        await Promise.all(layers.map(async layerId => this.removeLayerFromModel(modelId, layerId)));
         await ProjectsService.removeNeuroModel(projectId);
         await neuroModel.findByIdAndRemove(modelId);
     }
@@ -48,6 +50,17 @@ export class NeuroModelService {
         model.layers.remove(layerId);
         await model.save();
         return model.layers.map(String);
+    }
+
+    public static async editModel(
+        modelId: string,
+        options: Omit<Partial<INeuroModel>, 'layers'>,
+    ): Promise<INeuroModelInfo> {
+        const nextModel = await neuroModel.findByIdAndUpdate(modelId, options, { new: true });
+        if (!nextModel) {
+            throw new Error('Model not found');
+        }
+        return this.getModelInfo(nextModel);
     }
 
     public static async getLayers(modelId: string): Promise<string[]> {
