@@ -109,6 +109,38 @@ export class ProjectsService {
         return this.getMinProjectInfo(projectDoc);
     }
 
+    public static async addNeuroModel(projectId: string, modelId: string): Promise<void> {
+        const project = await projectModel.findById(projectId);
+        if (!project) {
+            throw new Error('Project not found to add model');
+        }
+        if (project.neuroModel) {
+            throw new Error('Model already exists for this project');
+        }
+        project.neuroModel = modelId;
+        await project.save();
+    }
+
+    public static async removeNeuroModel(projectId: string): Promise<void> {
+        const project = await projectModel.findById(projectId);
+        if (!project) {
+            throw new Error('Project not found to remove model');
+        }
+        if (!project.neuroModel) {
+            throw new Error('Not existing model to remove');
+        }
+        // eslint-disable-next-line no-undefined
+        project.neuroModel = undefined;
+        await project.save();
+    }
+
+    public static async checkRightsForProject(projectId: string, userId: string): Promise<void> {
+        const project = await projectModel.findById(projectId);
+        if (String(project?.owner) !== projectId && project?.sharedWith.includes(userId)) {
+            throw new Error('Acess forbidden to this project');
+        }
+    }
+
     private static async updateProjectById(
         id: string,
         updateProjectParams: Partial<IProjectPopulated>,
@@ -123,8 +155,6 @@ export class ProjectsService {
                 return srcValue.slice();
             }
         });
-        // console.log('currentProject:', currentProject);
-        // console.log('nextPropject:', nextProject);
         await Promise.all(currentProject.sharedWith.map(async userId => {
             await UserService.removeAvailableProject(userId, id);
         }));
