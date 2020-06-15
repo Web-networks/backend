@@ -36,7 +36,7 @@ async function removeModel(req: Request, res: Response) {
     const { modelId } = req.query;
     try {
         await NeuroModelService.removeModel(modelId);
-        res.status(200).end();
+        res.status(200).json(null);
     } catch (error) {
         res.status(400).json({ message: error.toString() });
     }

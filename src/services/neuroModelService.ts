@@ -71,7 +71,7 @@ export class NeuroModelService {
         return model.layers.map(String);
     }
 
-    public static async getModelInfoById(modelId: string): Promise<INeuroModelInfo> {
+    public static async getModelInfoById(modelId: string): Promise<INeuroModelInfo | null> {
         const model = await neuroModel.findById(modelId);
         if (!model) {
             throw new Error('Model not found');
@@ -79,10 +79,10 @@ export class NeuroModelService {
         return this.getModelInfo(model);
     }
 
-    public static async getModelByProjectId(projectId: string): Promise<INeuroModelInfo> {
+    public static async getModelByProjectId(projectId: string): Promise<INeuroModelInfo | null> {
         const model = await neuroModel.findOne({ project: projectId });
         if (!model) {
-            throw new Error('Model not found');
+            return null;
         }
         return this.getModelInfo(model);
     }
