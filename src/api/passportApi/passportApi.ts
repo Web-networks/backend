@@ -35,6 +35,7 @@ async function signUp(req: express.Request, res: express.Response) {
     try {
         const userRecord = req.body as IUserSignUp;
         const userInfo = await userService.signUp(userRecord);
+        req.session!.user = userInfo;
         return res.status(201).json(userInfo);
     } catch (error) {
         return res.status(400).json({ message: error.message });

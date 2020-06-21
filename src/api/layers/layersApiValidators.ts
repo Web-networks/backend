@@ -10,8 +10,7 @@ export const addPostValidator = celebrate({
             .string()
             .required(),
         params: Joi
-            .object()
-            .required(),
+            .object(),
     }),
 });
 
