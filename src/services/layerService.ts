@@ -29,11 +29,16 @@ export class LayerService {
         layerId: string,
         nextLayer: Partial<Omit<ILayer, 'id' | 'model'>>,
     ): Promise<ILayerPopulated[]> {
-        const updatedLayer = await layerModel.findByIdAndUpdate(layerId, nextLayer, { new: true });
-        if (!updatedLayer) {
+        const prevLayer = await layerModel.findById(layerId);
+        if (!prevLayer) {
             throw new Error('Layer not found');
         }
-        const { model: modelId } = updatedLayer;
+        const prevLayerParams = prevLayer.params;
+        const nextLayerParams = nextLayer.params
+            ? { ...prevLayerParams, ...nextLayer.params } : prevLayerParams;
+        const nextLayerWithParams = { ...nextLayer, params: nextLayerParams };
+        const updatedLayer = await layerModel.findByIdAndUpdate(layerId, nextLayerWithParams, { new: true });
+        const { model: modelId } = updatedLayer!;
         const nextLayers = await NeuroModelService.getLayers(modelId);
         return this.getLayersInfoByIds(nextLayers);
     }
