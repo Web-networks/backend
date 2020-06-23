@@ -16,5 +16,6 @@ module.exports = {
         region: 'ru-central1',
         endpoint: 'https://storage.yandexcloud.net',
         maxFileSize: 1048576
-    }
+    },
+    metaBackendHost: 'http://84.201.156.149:8000',
 };

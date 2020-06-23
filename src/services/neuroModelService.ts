@@ -1,15 +1,24 @@
 import { omit, pick } from 'lodash';
+import axios from 'axios';
+import config from 'config';
+
 import { INeuroModel, neuroModel, INeuroModelPopulated } from 'models/neuroModel';
 import { ProjectsService } from 'services/projectsService';
 
-type INeuroModelInfo = Partial<INeuroModelPopulated>;
+interface LearnModelOptions {
+    input: {
+        type: string;
+        dataset: string;
+    };
+    output: Object;
+}
 
 export class NeuroModelService {
     private static readonly fieldsInfo: Array<keyof INeuroModel> = [
-        'loss', 'optimizer', 'metrics', 'id', 'layers', 'project',
+        'loss', 'optimizer', 'metrics', 'id', 'layers', 'project', 'task',
     ];
 
-    public static async createModel(projectId: string, options?: Partial<INeuroModel>): Promise<INeuroModelInfo> {
+    public static async createModel(projectId: string, options?: Partial<INeuroModel>): Promise<INeuroModel> {
         const neuroModelOptions = omit(options, ['layers', 'project']);
         const neuroModelPrototype = {
             project: projectId,
@@ -55,7 +64,7 @@ export class NeuroModelService {
     public static async editModel(
         modelId: string,
         options: Omit<Partial<INeuroModel>, 'layers'>,
-    ): Promise<INeuroModelInfo> {
+    ): Promise<INeuroModel> {
         const nextModel = await neuroModel.findByIdAndUpdate(modelId, options, { new: true });
         if (!nextModel) {
             throw new Error('Model not found');
@@ -71,7 +80,7 @@ export class NeuroModelService {
         return model.layers.map(String);
     }
 
-    public static async getModelInfoById(modelId: string): Promise<INeuroModelInfo | null> {
+    public static async getModelInfoById(modelId: string): Promise<INeuroModel | null> {
         const model = await neuroModel.findById(modelId);
         if (!model) {
             throw new Error('Model not found');
@@ -79,7 +88,7 @@ export class NeuroModelService {
         return this.getModelInfo(model);
     }
 
-    public static async getModelByProjectId(projectId: string): Promise<INeuroModelInfo | null> {
+    public static async getModelByProjectId(projectId: string): Promise<INeuroModel | null> {
         const model = await neuroModel.findOne({ project: projectId });
         if (!model) {
             return null;
@@ -87,10 +96,59 @@ export class NeuroModelService {
         return this.getModelInfo(model);
     }
 
-    private static getModelInfo(neuroModel: INeuroModel): INeuroModelInfo {
-        const neuroModelPopulated = neuroModel
+    public static async learnModel(
+        modelId: string,
+        options: LearnModelOptions,
+        userId: string,
+    ): Promise<INeuroModel> {
+        const model = await neuroModel.findById(modelId);
+        if (!model) {
+            throw new Error('Model not found');
+        }
+        const modelInfo = await this.getExtendedModelInfo(model);
+
+        const minModelInfo = omit(modelInfo, ['id', 'project']);
+        const creationModelInfo = {
+            ...minModelInfo,
+            ...options,
+            layers: minModelInfo.layers?.map(({ type, params }) => ({ type, params })),
+        };
+        const metaBackendHost = config.get('metaBackendHost');
+        const createModelUrl = `${metaBackendHost}/api/create-model`;
+        const creationModelResponse = await axios
+            .post(createModelUrl, creationModelInfo, {
+                headers: {
+                    'X-User-id': userId,
+                },
+            });
+        const { model_id: createdModelId } = creationModelResponse.data;
+
+        const startTrainTaskUrl = `${metaBackendHost}/api/start-train-task`;
+        const trainTaskBody = {
+            model_id: createdModelId,
+            user_input_id: options.input.dataset,
+            parameters: '',
+        };
+        const trainTaskResponse = await axios
+            .post(startTrainTaskUrl, trainTaskBody, {
+                headers: {
+                    'X-User-id': userId,
+                },
+            });
+        const { task_id: taskId } = trainTaskResponse.data;
+        const updatedModel = await neuroModel.findByIdAndUpdate(modelId, { task: taskId }, { new: true });
+        return this.getModelInfo(updatedModel!);
+    }
+
+    private static async getExtendedModelInfo(neuroModel: INeuroModel): Promise<Partial<INeuroModelPopulated>> {
+        const neuroModelPopulated = await neuroModel
             .populate('layers')
-            .populate('project') as INeuroModelPopulated;
+            .populate('project')
+            .execPopulate();
         return pick(neuroModelPopulated, this.fieldsInfo);
+    }
+
+    private static getModelInfo(neuroModel: INeuroModel): INeuroModel {
+        return pick(neuroModel, this.fieldsInfo);
     }
 }

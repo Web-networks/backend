@@ -4,6 +4,7 @@ import {
     removeGetValidator,
     getModelValidator,
     editModelValidator,
+    learnModelValidator,
 } from './neuroModelsValidators';
 import { needAuthorization } from 'middlewares/authorization';
 import { IUser } from 'models/userModel';
@@ -17,7 +18,8 @@ neuroModelsRoute
     .post('/edit', needAuthorization, editModelValidator, editModel)
     .get('/remove', needAuthorization, removeGetValidator, removeModel)
     .get('/get', needAuthorization, getModelValidator, getModelByProjectId)
-    .get('/:id/info', needAuthorization, getModelInfo);
+    .get('/:id/info', needAuthorization, getModelInfo)
+    .post('/learn', needAuthorization, learnModelValidator, learnModel);
 
 
 async function addModel(req: Request, res: Response) {
@@ -68,6 +70,18 @@ async function editModel(req: Request, res: Response) {
         const modelInfo = await NeuroModelService.editModel(modelId, options);
         res.status(200).json(modelInfo);
     } catch (error) {
+        res.status(400).json({ message: error.toString() });
+    }
+}
+
+async function learnModel(req: Request, res: Response) {
+    const { modelId, ...options } = req.body;
+    const { id: userId } = req.session!.user!;
+    try {
+        const modelInfo = await NeuroModelService.learnModel(modelId, options, userId);
+        res.status(200).json(modelInfo);
+    } catch (error) {
+        console.error(error);
         res.status(400).json({ message: error.toString() });
     }
 }

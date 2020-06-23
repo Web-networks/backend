@@ -24,12 +24,16 @@ const NeuroModelSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'Project',
     },
+    task: {
+        type: String,
+    },
 });
 
 interface INeuroModelShema extends Document {
     loss: string;
     optimizer?: string;
     metrics?: string;
+    task?: string;
 }
 
 interface INeuroModelBase extends INeuroModelShema {
