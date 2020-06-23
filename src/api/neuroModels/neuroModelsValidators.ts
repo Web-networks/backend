@@ -40,3 +40,16 @@ export const getModelValidator = celebrate({
         project: Joi.string().required(),
     }),
 });
+
+export const learnModelValidator = celebrate({
+    [Segments.BODY]: Joi.object().keys({
+        input: Joi.object().keys({
+            type: Joi.string().required(),
+            dataset: Joi.string().required(),
+            dimensions: Joi.array().required(),
+            channels: Joi.number().required(),
+        }),
+        output: Joi.object().required(),
+        modelId: Joi.string().required(),
+    }),
+});
